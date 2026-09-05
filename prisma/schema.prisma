@@ -1,0 +1,21 @@
+model Session {
+  id          Int      @id @default(autoincrement())
+  tokenHash   String   @unique
+  discordNick String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  projects Project[]
+}
+
+model Project {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String?
+  peopleNeeded Int
+  peopleIn Int
+  createdAt DateTime @default(now())
+
+  sessionId Int
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
