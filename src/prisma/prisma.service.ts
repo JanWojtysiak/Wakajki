@@ -61,11 +61,17 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return updated > 0;
   }
 
-  private get session() {
+  public get session() {
     if (!this.database) {
       throw new ServiceUnavailableException('Database is not connected');
     }
-
     return this.database.orm.public.Session;
+  }
+
+  public get project() {
+    if (!this.database) {
+      throw new ServiceUnavailableException('Database is not connected');
+    }
+    return this.database.orm.public.Project;
   }
 }
