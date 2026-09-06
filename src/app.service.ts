@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
+import { Temporal } from '@js-temporal/polyfill';
 
 const SESSION_DURATION = 1000 * 60 * 60 * 24 * 30;
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
@@ -27,7 +28,7 @@ export class AppService {
     if (token && TOKEN_PATTERN.test(token)) {
       const session = await this.prismaService.findActiveSession(
         this.hashToken(token),
-        new Date(),
+        Temporal.Now.instant(),
       );
 
       if (session) {
@@ -39,7 +40,7 @@ export class AppService {
     }
 
     const newToken = randomBytes(32).toString('base64url');
-    const expiresAt = new Date(Date.now() + SESSION_DURATION);
+    const expiresAt = Temporal.Now.instant().add({ hours: 24 });
 
     await this.prismaService.createSession(this.hashToken(newToken), expiresAt);
 
@@ -47,7 +48,7 @@ export class AppService {
       page: 'Welcome.jsx',
       discordNick: null,
       token: newToken,
-      expiresAt,
+      expiresAt: new Date(expiresAt.epochMilliseconds),
     };
   }
 
@@ -77,7 +78,7 @@ export class AppService {
     const updated = await this.prismaService.updateActiveSession(
       this.hashToken(token),
       discordNick,
-      new Date(),
+      Temporal.Now.instant(),
     );
 
     if (!updated) {

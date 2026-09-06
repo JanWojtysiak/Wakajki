@@ -14,16 +14,18 @@ async function bootstrap() {
   });
   app.enableShutdownHooks();
 
-  app.useGlobalPipes(new ValidationPipe({
-  whitelist: true, 
-  transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Wakajki API')
     .setDescription('Dokumentacja API do łączenia się w grupy projektowe')
     .setVersion('1.0')
-    .addCookieAuth('wakajki_session') 
+    .addCookieAuth('wakajki_session')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -5,6 +5,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import type { Contract } from './generated/contract';
+import { Temporal } from '@js-temporal/polyfill';
 
 const contractJson: unknown = require('./generated/contract.json');
 
@@ -36,7 +37,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     await this.database?.close();
   }
 
-  async findActiveSession(tokenHash: string, now: Date) {
+  async findActiveSession(tokenHash: string, now: Temporal.Instant) {
     return this.session
       .select('discordNick')
       .where({ tokenHash })
@@ -44,7 +45,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
       .first();
   }
 
-  async createSession(tokenHash: string, expiresAt: Date) {
+  async createSession(tokenHash: string, expiresAt: Temporal.Instant) {
     return this.session.create({
       tokenHash,
       discordNick: null,
@@ -52,7 +53,11 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async updateActiveSession(tokenHash: string, discordNick: string, now: Date) {
+  async updateActiveSession(
+    tokenHash: string,
+    discordNick: string,
+    now: Temporal.Instant,
+  ) {
     const updated = await this.session
       .where({ tokenHash })
       .where((session) => session.expiresAt.gt(now))
