@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Temporal } from '@js-temporal/polyfill';
+(globalThis as any).Temporal = Temporal;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
