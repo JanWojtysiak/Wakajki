@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, UnauthorizedException, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UnauthorizedException,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { SessionToken } from '../app.controller';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -19,7 +28,9 @@ export class ProjectsController {
     @Body() body: CreateProjectDto,
   ) {
     if (!token) {
-      throw new UnauthorizedException('Musisz być zalogowany (mieć ciastko), żeby dodać projekt');
+      throw new UnauthorizedException(
+        'Musisz być zalogowany (mieć ciastko), żeby dodać projekt',
+      );
     }
 
     const peopleNeeded = Number(body.peopleNeeded);
@@ -31,18 +42,25 @@ export class ProjectsController {
     });
   }
 
+  @Get('users')
+  getUsersList() {
+    return this.projectsService.getUsersWithProjects();
+  }
+
   @Patch(':id')
   updateProject(
     @Param('id') id: string,
     @SessionToken() token: string | undefined,
-    @Body() body: UpdateProjectDto
+    @Body() body: UpdateProjectDto,
   ) {
     if (!token) {
-      throw new UnauthorizedException('Musisz być zalogowany, żeby edytować projekt');
+      throw new UnauthorizedException(
+        'Musisz być zalogowany, żeby edytować projekt',
+      );
     }
 
     const projectId = Number(id);
-    
+
     if (isNaN(projectId)) {
       throw new Error('ID projektu musi być liczbą');
     }
@@ -60,7 +78,9 @@ export class ProjectsController {
     @SessionToken() token: string | undefined,
   ) {
     if (!token) {
-      throw new UnauthorizedException('Musisz być zalogowany, żeby usunąć projekt');
+      throw new UnauthorizedException(
+        'Musisz być zalogowany, żeby usunąć projekt',
+      );
     }
 
     const projectId = Number(id);
@@ -69,5 +89,41 @@ export class ProjectsController {
     }
 
     return this.projectsService.remove(projectId, token);
+  }
+
+  @Post(':id/join')
+  joinProject(
+    @Param('id') id: string,
+    @SessionToken() token: string | undefined,
+  ) {
+    if (!token) {
+      throw new UnauthorizedException(
+        'Musisz być zalogowany, żeby dołączyć do projektu',
+      );
+    }
+
+    const projectId = Number(id);
+    if (isNaN(projectId)) {
+      throw new Error('ID projektu musi być liczbą');
+    }
+
+    return this.projectsService.join(projectId, token);
+  }
+
+  @Post(':id/leave')
+  leaveProject(
+    @Param('id') id: string,
+    @SessionToken() token: string | undefined,
+  ) {
+    if (!token) {
+      throw new UnauthorizedException('Musisz być zalogowany');
+    }
+
+    const projectId = Number(id);
+    if (isNaN(projectId)) {
+      throw new Error('ID projektu musi być liczbą');
+    }
+
+    return this.projectsService.leave(projectId, token);
   }
 }

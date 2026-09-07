@@ -47,6 +47,13 @@
                   "kind": "scalar"
                 }
               },
+              "participants": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "peopleIn": {
                 "nullable": false,
                 "type": {
@@ -99,6 +106,9 @@
                 },
                 "name": {
                   "column": "name"
+                },
+                "participants": {
+                  "column": "participants"
                 },
                 "peopleIn": {
                   "column": "peopleIn"
@@ -230,6 +240,15 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "participants": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "[]"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
                 "peopleIn": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
@@ -339,7 +358,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "7fdbf69dd285b3560f3d54b93ee1503fb9ef9a94a53ff380f5ee455459a55f81"
+    "storageHash": "0fbe531845a91dc865441d900f3d18bc9b2c68440882b2d0fc94213a3dd9472f"
   },
   "capabilities": {
     "postgres": {
