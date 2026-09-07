@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Welcome from './Welcome';
 
 interface Project {
   id: number;
@@ -8,17 +9,29 @@ interface Project {
   peopleIn: number;
   participants?: string;
 }
+
 interface UserInfo {
   nick: string;
+  discordAvatar?: string | null;
   projects: { id: number; name: string }[];
   joinedProjects?: { id: number; name: string }[];
+}
+
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(
+    new RegExp(
+      '(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)',
+    ),
+  );
+  return match ? decodeURIComponent(match[1]) : null;
 }
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
@@ -29,52 +42,58 @@ export default function Dashboard() {
 
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
 
-  const fetchUsers = async () => {
+  const checkAuthAndFetchData = async () => {
     try {
-      const res = await fetch('http://localhost:3000/projects/users', {
+      const resProjects = await fetch('http://localhost:3000/projects', {
         credentials: 'include',
       });
-      if (res.ok) {
-        const data: UserInfo[] = await res.json();
-        setUsers(data);
 
-        if (data.length > 0) {
-          const currentUser = data[0];
-          if (currentUser && currentUser.joinedProjects) {
-            const joinedIds = currentUser.joinedProjects.map((p) => p.id);
-            setJoinedProjects(joinedIds);
-          }
+      if (resProjects.status === 401) {
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
+      if (resProjects.ok) {
+        const projData: Project[] = await resProjects.json();
+        setProjects(projData);
+        setIsAuthenticated(true);
+
+        const myNick = getCookie('myNick');
+        if (myNick) {
+          const joined = projData
+            .filter((p) => {
+              try {
+                const participants: string[] = JSON.parse(
+                  p.participants || '[]',
+                );
+                return participants.includes(myNick);
+              } catch {
+                return false;
+              }
+            })
+            .map((p) => p.id);
+          setJoinedProjects(joined);
         }
       }
-    } catch (err) {
-      console.error('Błąd pobierania użytkowników', err);
-    }
-  };
 
-  const fetchProjects = async () => {
-    try {
-      const res = await fetch('http://localhost:3000/projects', {
+      const resUsers = await fetch('http://localhost:3000/projects/users', {
         credentials: 'include',
       });
 
-      if (!res.ok) {
-        if (res.status === 401)
-          throw new Error('Nie jesteś zalogowany (brak ciastka).');
-        throw new Error('Wystąpił błąd podczas pobierania projektów.');
+      if (resUsers.ok) {
+        const userData: UserInfo[] = await resUsers.json();
+        setUsers(userData);
       }
-
-      const data: Project[] = await res.json();
-      setProjects(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      console.error('Błąd połączenia z backendem', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProjects();
-    fetchUsers();
+    checkAuthAndFetchData();
   }, []);
 
   const openCreateModal = () => {
@@ -112,8 +131,7 @@ export default function Dashboard() {
       if (!res.ok) throw new Error('Nie udało się zapisać projektu');
 
       setIsModalOpen(false);
-      fetchProjects();
-      fetchUsers();
+      checkAuthAndFetchData();
     } catch (err: any) {
       alert(err.message);
     }
@@ -130,8 +148,7 @@ export default function Dashboard() {
 
       if (!res.ok) throw new Error('Nie udało się usunąć projektu');
 
-      fetchProjects();
-      fetchUsers();
+      checkAuthAndFetchData();
     } catch (err: any) {
       alert(err.message);
     }
@@ -161,12 +178,23 @@ export default function Dashboard() {
         setJoinedProjects([...joinedProjects, project.id]);
       }
 
-      fetchProjects();
-      fetchUsers();
+      checkAuthAndFetchData();
     } catch (err: any) {
       alert(err.message);
     }
   };
+
+  if (loading || isAuthenticated === null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <p className="text-gray-500 text-lg">Sprawdzanie autoryzacji...</p>
+      </div>
+    );
+  }
+
+  if (isAuthenticated === false) {
+    return <Welcome />;
+  }
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden relative">
@@ -197,9 +225,18 @@ export default function Dashboard() {
                 className="relative group cursor-pointer bg-transparent hover:bg-slate-800 rounded-lg transition-colors overflow-hidden"
               >
                 <div className="flex items-center p-2">
-                  <div className="w-10 h-10 shrink-0 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-sm">
-                    {user.nick.charAt(0).toUpperCase()}
+                  <div className="w-10 h-10 shrink-0 bg-[#5865F2] text-white rounded-full flex items-center justify-center font-bold shadow-sm overflow-hidden border border-slate-700">
+                    {user.discordAvatar ? (
+                      <img
+                        src={user.discordAvatar}
+                        alt={user.nick}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      user.nick.charAt(0).toUpperCase()
+                    )}
                   </div>
+
                   <span
                     className={`font-medium text-slate-300 whitespace-nowrap transition-all duration-300 ${
                       isSidebarHovered
@@ -283,67 +320,59 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {error ? (
-              <p className="text-red-600 text-center text-lg mt-12">{error}</p>
-            ) : loading ? (
-              <p className="text-gray-500 text-center text-lg mt-12">
-                Ładowanie projektów...
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {projects.map((project) => (
-                  <div
-                    key={project.id}
-                    className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between"
-                  >
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-800">
-                        {project.name}
-                      </h2>
-                      <p className="text-gray-600 mt-3 line-clamp-3">
-                        {project.description || 'Brak opisu.'}
-                      </p>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {projects.map((project) => (
+                <div
+                  key={project.id}
+                  className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between"
+                >
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-800">
+                      {project.name}
+                    </h2>
+                    <p className="text-gray-600 mt-3 line-clamp-3">
+                      {project.description || 'Brak opisu.'}
+                    </p>
+                  </div>
 
-                    <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-500">
-                        Osoby:{' '}
-                        <span className="text-blue-600 font-bold">
-                          {project.peopleIn}
-                        </span>{' '}
-                        / {project.peopleNeeded}
-                      </span>
-                      <div className="space-x-2">
-                        <button
-                          onClick={() => handleToggleJoin(project)}
-                          className={`text-sm font-medium hover:underline ${
-                            joinedProjects.includes(project.id)
-                              ? 'text-orange-600'
-                              : 'text-green-600'
-                          }`}
-                        >
-                          {joinedProjects.includes(project.id)
-                            ? 'Opuść'
-                            : 'Dołącz'}
-                        </button>
-                        <button
-                          onClick={() => openEditModal(project)}
-                          className="text-sm text-blue-600 font-medium hover:underline"
-                        >
-                          Edytuj
-                        </button>
-                        <button
-                          onClick={() => handleDelete(project.id)}
-                          className="text-sm text-red-600 font-medium hover:underline"
-                        >
-                          Usuń
-                        </button>
-                      </div>
+                  <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-500">
+                      Osoby:{' '}
+                      <span className="text-blue-600 font-bold">
+                        {project.peopleIn}
+                      </span>{' '}
+                      / {project.peopleNeeded}
+                    </span>
+                    <div className="space-x-2">
+                      <button
+                        onClick={() => handleToggleJoin(project)}
+                        className={`text-sm font-medium hover:underline ${
+                          joinedProjects.includes(project.id)
+                            ? 'text-orange-600'
+                            : 'text-green-600'
+                        }`}
+                      >
+                        {joinedProjects.includes(project.id)
+                          ? 'Opuść'
+                          : 'Dołącz'}
+                      </button>
+                      <button
+                        onClick={() => openEditModal(project)}
+                        className="text-sm text-blue-600 font-medium hover:underline"
+                      >
+                        Edytuj
+                      </button>
+                      <button
+                        onClick={() => handleDelete(project.id)}
+                        className="text-sm text-red-600 font-medium hover:underline"
+                      >
+                        Usuń
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
 
             {isModalOpen && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

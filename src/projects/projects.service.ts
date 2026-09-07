@@ -158,7 +158,7 @@ export class ProjectsService {
       (nick: string) => nick !== session.discordNick,
     );
 
-    const newPeopleIn = Math.max(1, project.peopleIn - 1);
+    const newPeopleIn = Math.max(0, project.peopleIn - 1);
 
     await this.prisma.project.where({ id: projectId }).updateAndCount({
       peopleIn: newPeopleIn,
@@ -182,6 +182,7 @@ export class ProjectsService {
         if (!usersMap.has(session.discordNick)) {
           usersMap.set(session.discordNick, {
             nick: session.discordNick,
+            discordAvatar: session.discordAvatar,
             projects: [],
             joinedProjects: [],
           });
@@ -196,10 +197,6 @@ export class ProjectsService {
       if (creatorNick && usersMap.has(creatorNick)) {
         const user = usersMap.get(creatorNick);
         user.projects.push(projectData);
-
-        if (!user.joinedProjects.find((p: any) => p.id === project.id)) {
-          user.joinedProjects.push(projectData);
-        }
       }
 
       const participantsList = JSON.parse(project.participants || '[]');

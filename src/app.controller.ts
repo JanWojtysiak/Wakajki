@@ -12,6 +12,7 @@ import type { Request, Response } from 'express';
 import { AppService } from './app.service';
 
 const SESSION_COOKIE = 'wakajki_session';
+export { SESSION_COOKIE };
 export const SessionToken = createParamDecorator(
   (_data: unknown, context: ExecutionContext): string | undefined =>
     context.switchToHttp().getRequest<Request>().cookies?.[SESSION_COOKIE],

@@ -133,6 +133,20 @@
                   "kind": "scalar"
                 }
               },
+              "discordAvatar": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "discordId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "discordNick": {
                 "nullable": true,
                 "type": {
@@ -183,6 +197,12 @@
               "fields": {
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "discordAvatar": {
+                  "column": "discordAvatar"
+                },
+                "discordId": {
+                  "column": "discordId"
                 },
                 "discordNick": {
                   "column": "discordNick"
@@ -312,6 +332,16 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "discordAvatar": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "discordId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "discordNick": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -358,7 +388,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "0fbe531845a91dc865441d900f3d18bc9b2c68440882b2d0fc94213a3dd9472f"
+    "storageHash": "b3e1831ed01562a7faeefecf1c4faf3e1d736e7003cfa5d49e9c18bd45217c91"
   },
   "capabilities": {
     "postgres": {

@@ -1,7 +1,9 @@
 model Session {
-  id          Int      @id @default(autoincrement())
-  tokenHash   String   @unique
-  discordNick String?
+  id            Int       @id @default(autoincrement())
+  tokenHash     String    @unique
+  discordId     String?   
+  discordNick   String?
+  discordAvatar String?
   expiresAt   DateTime
   createdAt   DateTime @default(now())
 
