@@ -1,1 +1,13 @@
 @import 'tailwindcss';
+@theme {
+  --font-inter: Inter, system-ui, sans-serif;
+  --color-app-bg: #161616;
+  --color-panel: #18181b;
+  --color-panel-border: #27272a;
+  --color-discord: #5865f2;
+  --color-primary: #1069BB;
+  --color-muted-action: #949ba4;
+  --color-warning: #f0b232;
+  --color-success: #23a55a;
+  --color-danger: #f23f43;
+}

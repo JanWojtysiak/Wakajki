@@ -41,6 +41,9 @@ export default function Dashboard() {
   const [joinedProjects, setJoinedProjects] = useState<number[]>([]);
 
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+  const [selectedUserIndex, setSelectedUserIndex] = useState<number | null>(
+    null,
+  );
 
   const checkAuthAndFetchData = async () => {
     try {
@@ -197,7 +200,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden relative">
+    <div className="flex h-screen bg-app-bg overflow-hidden relative">
       <div className="w-20 shrink-0 h-full hidden md:block"></div>
 
       <aside
@@ -218,14 +221,23 @@ export default function Dashboard() {
             Użytkownicy serwera
           </h2>
 
-          <ul className="space-y-2 mt-2">
+          <ul className="space-y-2 mt-2 ">
             {users.map((user, index) => (
               <li
                 key={index}
-                className="relative group cursor-pointer bg-transparent hover:bg-slate-800 rounded-lg transition-colors overflow-hidden"
+                onClick={() =>
+                  setSelectedUserIndex(
+                    selectedUserIndex === index ? null : index,
+                  )
+                }
+                className="relative cursor-pointer bg-transparent hover:bg-slate-800 rounded-lg transition-colors overflow-hidden"
               >
-                <div className="flex items-center p-2">
-                  <div className="w-10 h-10 shrink-0 bg-[#5865F2] text-white rounded-full flex items-center justify-center font-bold shadow-sm overflow-hidden border border-slate-700">
+                <div
+                  className={`flex items-center p-2 ${
+                    isSidebarHovered ? 'justify-start' : 'justify-center'
+                  }`}
+                >
+                  <div className="w-10 h-10 shrink-0 bg-discord text-white rounded-full flex items-center justify-center font-bold shadow-sm overflow-hidden border border-slate-700">
                     {user.discordAvatar ? (
                       <img
                         src={user.discordAvatar}
@@ -249,9 +261,11 @@ export default function Dashboard() {
                 </div>
 
                 <div
-                  className={`transition-all duration-500 ease-in-out max-h-0 opacity-0 group-hover:max-h-96 group-hover:opacity-100 ${
-                    isSidebarHovered ? 'block' : 'hidden'
-                  }`}
+                  className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                    selectedUserIndex === index
+                      ? 'max-h-96 opacity-100'
+                      : 'max-h-0 opacity-0'
+                  } ${isSidebarHovered ? 'block' : 'hidden'}`}
                 >
                   <div className="p-4 pt-0 text-sm">
                     <div className="mb-3">
@@ -309,12 +323,12 @@ export default function Dashboard() {
         <div className="p-8 overflow-y-auto flex-1">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-white font-inter">
                 Tablica Projektów
               </h1>
               <button
                 onClick={openCreateModal}
-                className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md font-medium shadow-sm transition-colors"
+                className="bg-primary text-white px-5 py-2 rounded-md font-medium shadow-sm cursor-pointer"
               >
                 + Nowy Projekt
               </button>
@@ -324,13 +338,13 @@ export default function Dashboard() {
               {projects.map((project) => (
                 <div
                   key={project.id}
-                  className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between"
+                  className="bg-panel p-6 rounded-xl shadow-sm border-4 border-panel-border hover:shadow-md transition-shadow flex flex-col justify-between"
                 >
                   <div>
-                    <h2 className="text-xl font-bold text-gray-800">
+                    <h2 className="text-xl font-bold text-white">
                       {project.name}
                     </h2>
-                    <p className="text-gray-600 mt-3 line-clamp-3">
+                    <p className="text-gray-300 mt-3 line-clamp-3">
                       {project.description || 'Brak opisu.'}
                     </p>
                   </div>
@@ -346,10 +360,10 @@ export default function Dashboard() {
                     <div className="space-x-2">
                       <button
                         onClick={() => handleToggleJoin(project)}
-                        className={`text-sm font-medium hover:underline ${
+                        className={`text-sm font-medium transition-colors ${
                           joinedProjects.includes(project.id)
-                            ? 'text-orange-600'
-                            : 'text-green-600'
+                            ? 'text-muted-action hover:text-warning'
+                            : 'text-muted-action hover:text-success'
                         }`}
                       >
                         {joinedProjects.includes(project.id)
@@ -358,13 +372,13 @@ export default function Dashboard() {
                       </button>
                       <button
                         onClick={() => openEditModal(project)}
-                        className="text-sm text-blue-600 font-medium hover:underline"
+                        className="text-sm text-muted-action hover:text-discord font-medium transition-colors"
                       >
                         Edytuj
                       </button>
                       <button
                         onClick={() => handleDelete(project.id)}
-                        className="text-sm text-red-600 font-medium hover:underline"
+                        className="text-sm font-medium text-muted-action hover:text-danger transition-colors"
                       >
                         Usuń
                       </button>
@@ -376,15 +390,15 @@ export default function Dashboard() {
 
             {isModalOpen && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg">
-                  <h2 className="text-xl font-bold mb-4 text-gray-900">
+                <div className="bg-panel rounded-xl p-6 max-w-md w-full shadow-lg">
+                  <h2 className="text-xl font-bold mb-4 text-white">
                     {editingProjectId
                       ? 'Edytuj projekt'
                       : 'Utwórz nowy projekt'}
                   </h2>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-white mb-1">
                         Nazwa projektu
                       </label>
                       <input
@@ -392,22 +406,24 @@ export default function Dashboard() {
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Np. Aplikacja do planowania wakacji"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-white mb-1">
                         Opis
                       </label>
                       <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Opisz krótko, czego dotyczy projekt"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white"
                         rows={3}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-white mb-1">
                         Potrzebne osoby
                       </label>
                       <input
@@ -417,20 +433,21 @@ export default function Dashboard() {
                         onChange={(e) =>
                           setPeopleNeeded(Number(e.target.value))
                         }
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Np. 4"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white"
                       />
                     </div>
                     <div className="flex justify-end space-x-3 mt-6">
                       <button
                         type="button"
                         onClick={() => setIsModalOpen(false)}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium transition-colors"
+                        className="px-4 py-2 border border-gray-300 rounded-md text-white  font-medium cursor-pointer"
                       >
                         Anuluj
                       </button>
                       <button
                         type="submit"
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium transition-colors"
+                        className="px-4 py-2 bg-primary text-white rounded-md font-medium cursor-pointer"
                       >
                         {editingProjectId ? 'Zapisz zmiany' : 'Utwórz'}
                       </button>
