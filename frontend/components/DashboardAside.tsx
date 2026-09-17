@@ -41,9 +41,7 @@ export default function DashboardAside({ users }: DashboardAsideProps) {
             <li
               key={index}
               onClick={() =>
-                setSelectedUserIndex(
-                  selectedUserIndex === index ? null : index,
-                )
+                setSelectedUserIndex(selectedUserIndex === index ? null : index)
               }
               className="relative cursor-pointer bg-transparent hover:bg-slate-800 rounded-lg transition-colors overflow-hidden"
             >
@@ -109,8 +107,7 @@ export default function DashboardAside({ users }: DashboardAsideProps) {
                       Bierze udział w:
                     </p>
                     <ul className="list-disc list-inside space-y-1">
-                      {user.joinedProjects &&
-                      user.joinedProjects.length > 0 ? (
+                      {user.joinedProjects && user.joinedProjects.length > 0 ? (
                         user.joinedProjects.map((p) => (
                           <li
                             key={`joined-${p.id}`}

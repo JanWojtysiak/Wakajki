@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import DashboardAside from './DashboardAside';
 import DashboardProjects from './DashboardProjects';
+import { CiSun } from 'react-icons/ci';
 import Welcome from './Welcome';
 
 interface Project {
@@ -19,6 +20,11 @@ interface UserInfo {
   joinedProjects?: { id: number; name: string }[];
 }
 
+interface ThemeToggleProps {
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+}
+
 function getCookie(name: string): string | null {
   const match = document.cookie.match(
     new RegExp(
@@ -28,6 +34,21 @@ function getCookie(name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+function WeatherIcon() {
+  return (
+    <div>
+      <CiSun size={32} color="white" />
+    </div>
+  );
+}
+
+function ThemeToggle({ theme, toggleTheme }: ThemeToggleProps) {
+  return (
+    <button type="button" onClick={toggleTheme} aria-label="Switch theme">
+      {theme === 'dark' ? '🌙' : '☀️'}
+    </button>
+  );
+}
 export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<UserInfo[]>([]);
@@ -41,6 +62,11 @@ export default function Dashboard() {
   const [description, setDescription] = useState('');
   const [peopleNeeded, setPeopleNeeded] = useState(2);
   const [joinedProjects, setJoinedProjects] = useState<number[]>([]);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'));
+  };
 
   const checkAuthAndFetchData = async () => {
     try {
@@ -202,20 +228,30 @@ export default function Dashboard() {
 
       <DashboardAside users={users} />
 
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        <div className="p-8 overflow-y-auto flex-1">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="text-3xl font-bold text-white font-inter">
-                Tablica Projektów
-              </h1>
-              <button
-                onClick={openCreateModal}
-                className="bg-primary text-white px-5 py-2 rounded-md font-medium shadow-sm cursor-pointer"
-              >
-                + Nowy Projekt
-              </button>
+      <div className="flex flex-1 flex-col h-screen min-w-0">
+        <header className="h-16 shrink-0 flex justify-between items-center px-8 border-b border-panel-border">
+          <div className="flex gap-2 items-center">
+            <WeatherIcon></WeatherIcon>
+            <div className="text-xl font-bold text-white font-inter">
+              Wakajki
             </div>
+          </div>
+          <div className="flex gap-7 items-center">
+            <button
+              onClick={openCreateModal}
+              className="bg-primary text-white px-5 py-2 rounded-md font-medium shadow-sm cursor-pointer  transition-colors hover:text-black hover:bg-white"
+            >
+              + Nowy projekt
+            </button>
+            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto p-8">
+          <div className="max-w-6xl mx-auto">
+            <h1 className="text-3xl font-bold text-white font-inter mb-8">
+              Tablica Projektów
+            </h1>
 
             <DashboardProjects
               projects={projects}
@@ -224,7 +260,6 @@ export default function Dashboard() {
               onEdit={openEditModal}
               onDelete={handleDelete}
             />
-
             {isModalOpen && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                 <div className="bg-panel rounded-xl p-6 max-w-md w-full shadow-lg">
@@ -278,13 +313,13 @@ export default function Dashboard() {
                       <button
                         type="button"
                         onClick={() => setIsModalOpen(false)}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-white  font-medium cursor-pointer"
+                        className="px-4 py-2 border border-gray-300 rounded-md text-white  font-medium cursor-pointer  transition-colors hover:text-black hover:bg-white"
                       >
                         Anuluj
                       </button>
                       <button
                         type="submit"
-                        className="px-4 py-2 bg-primary text-white rounded-md font-medium cursor-pointer"
+                        className="px-4 py-2 bg-primary text-white rounded-md font-medium cursor-pointer transition-colors hover:text-black hover:bg-white"
                       >
                         {editingProjectId ? 'Zapisz zmiany' : 'Utwórz'}
                       </button>
@@ -294,8 +329,8 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
