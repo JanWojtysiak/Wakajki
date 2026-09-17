@@ -1,9 +1,34 @@
 services:
-  api:
+  backend:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgresql://wakajki:wakajki@postgres:5432/wakajki
     volumes:
       - .:/app
       - /app/node_modules
     command: npm run start:dev
+    depends_on:
+      - postgres
+  frontend:
+    build: ./frontend
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
+  postgres:
+    image: postgres:18.6-alpine3.24
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wakajki
+      POSTGRES_PASSWORD: wakajki
+      POSTGRES_DB: wakajki
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
