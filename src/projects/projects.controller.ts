@@ -18,8 +18,8 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
-  getAllProjects() {
-    return this.projectsService.findAll();
+  getAllProjects(@SessionToken() token: string | undefined) {
+    return this.projectsService.findAll(token);
   }
 
   @Post()

@@ -11,8 +11,37 @@ import { createHash } from 'node:crypto';
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
-    return this.prisma.project.all();
+  async findAll(token?: string) {
+    const projects = await this.prisma.project.all();
+    const sessions = await this.prisma.session.all();
+    const sessionToNick = new Map();
+
+    for (const session of sessions) {
+      if (session.discordNick) {
+        sessionToNick.set(session.id, session.discordNick);
+      }
+    }
+
+    if (!token) {
+      throw new UnauthorizedException(
+        'Musisz być zalogowany przez Discord, żeby zobaczyć projekty',
+      );
+    }
+
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+    const session = await this.prisma.session.where({ tokenHash }).first();
+
+    return projects.map((project) => {
+      const participants: string[] = JSON.parse(project.participants || '[]');
+
+      return {
+        ...project,
+        ownerNick: sessionToNick.get(project.sessionId) || null,
+        isJoined: session?.discordNick
+          ? participants.includes(session.discordNick)
+          : false,
+      };
+    });
   }
 
   async create(
