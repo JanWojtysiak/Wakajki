@@ -53,19 +53,6 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async updateActiveSession(
-    tokenHash: string,
-    discordNick: string,
-    now: Temporal.Instant,
-  ) {
-    const updated = await this.session
-      .where({ tokenHash })
-      .where((session) => session.expiresAt.gt(now))
-      .updateAndCount({ discordNick });
-
-    return updated > 0;
-  }
-
   public get session() {
     if (!this.database) {
       throw new ServiceUnavailableException('Database is not connected');

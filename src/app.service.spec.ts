@@ -2,12 +2,12 @@ import { createHash } from 'node:crypto';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
+import { Temporal } from '@js-temporal/polyfill';
 
 describe('AppService', () => {
   let appService: AppService;
   const findActiveSession = jest.fn();
   const createSession = jest.fn();
-  const updateActiveSession = jest.fn();
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -20,7 +20,6 @@ describe('AppService', () => {
           useValue: {
             findActiveSession,
             createSession,
-            updateActiveSession,
           },
         },
       ],
@@ -37,7 +36,7 @@ describe('AppService', () => {
 
     expect(findActiveSession).toHaveBeenCalledWith(
       createHash('sha256').update(token).digest('hex'),
-      expect.any(Date),
+      expect.any(Temporal.Instant),
     );
     expect(createSession).not.toHaveBeenCalled();
     expect(result).toEqual({
@@ -54,30 +53,13 @@ describe('AppService', () => {
     expect(findActiveSession).not.toHaveBeenCalled();
     expect(createSession).toHaveBeenCalledWith(
       expect.stringMatching(/^[a-f0-9]{64}$/),
-      expect.any(Date),
+      expect.any(Temporal.Instant),
     );
     expect(result).toEqual({
       page: 'Welcome.jsx',
       discordNick: null,
       token: expect.stringMatching(/^[A-Za-z0-9_-]{43}$/),
       expiresAt: expect.any(Date),
-    });
-  });
-
-  it('saves the Discord nick for the active cookie session', async () => {
-    const token = 'a'.repeat(43);
-    updateActiveSession.mockResolvedValue(true);
-
-    const result = await appService.updateDiscordNick(token, ' discord-user ');
-
-    expect(updateActiveSession).toHaveBeenCalledWith(
-      createHash('sha256').update(token).digest('hex'),
-      'discord-user',
-      expect.any(Date),
-    );
-    expect(result).toEqual({
-      page: null,
-      discordNick: 'discord-user',
     });
   });
 });

@@ -44,14 +44,6 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
-    res.cookie('myNick', profile.username, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    });
-
     res.redirect('http://localhost:5173');
   }
 }

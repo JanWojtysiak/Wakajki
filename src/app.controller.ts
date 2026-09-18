@@ -1,11 +1,9 @@
 import {
-  Body,
   Controller,
   createParamDecorator,
   ExecutionContext,
   Get,
   Inject,
-  Patch,
   Res,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
@@ -43,13 +41,5 @@ export class AppController {
       page: result.page,
       discordNick: result.discordNick,
     };
-  }
-
-  @Patch()
-  updateDiscordNick(
-    @SessionToken() token: string | undefined,
-    @Body() body: Record<string, unknown> | undefined,
-  ) {
-    return this.appService.updateDiscordNick(token, body?.discordNick);
   }
 }
