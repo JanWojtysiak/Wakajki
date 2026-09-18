@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Welcome from '../components/Welcome';
-import Dashboard from '../components/Dashboard';
+import Dashboard from '@/components/Dashboard';
+import Welcome from '@/components/Welcome';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
