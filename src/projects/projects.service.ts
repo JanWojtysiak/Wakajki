@@ -11,6 +11,11 @@ import { createHash } from 'node:crypto';
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findByHash(token: string) {
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+    return await this.prisma.session.where({ tokenHash }).first();
+  }
+
   async findAll(token?: string) {
     const projects = await this.prisma.project.all();
     const sessions = await this.prisma.session.all();
@@ -28,9 +33,7 @@ export class ProjectsService {
       );
     }
 
-    const tokenHash = createHash('sha256').update(token).digest('hex');
-    const session = await this.prisma.session.where({ tokenHash }).first();
-
+    const session = await this.findByHash(token);
     return projects.map((project) => {
       const participants: string[] = JSON.parse(project.participants || '[]');
 
@@ -48,9 +51,7 @@ export class ProjectsService {
     token: string,
     data: { name: string; description?: string; peopleNeeded: number },
   ) {
-    const tokenHash = createHash('sha256').update(token).digest('hex');
-
-    const session = await this.prisma.session.where({ tokenHash }).first();
+    const session = await this.findByHash(token);
 
     if (!session || !session.discordNick) {
       throw new UnauthorizedException(
@@ -75,9 +76,7 @@ export class ProjectsService {
     token: string,
     data: { name?: string; description?: string; peopleNeeded?: number },
   ) {
-    const tokenHash = createHash('sha256').update(token).digest('hex');
-
-    const session = await this.prisma.session.where({ tokenHash }).first();
+    const session = await this.findByHash(token);
 
     if (!session) {
       throw new UnauthorizedException('Nieprawidłowa sesja');
@@ -105,8 +104,7 @@ export class ProjectsService {
   }
 
   async remove(projectId: number, token: string) {
-    const tokenHash = createHash('sha256').update(token).digest('hex');
-    const session = await this.prisma.session.where({ tokenHash }).first();
+    const session = await this.findByHash(token);
 
     if (!session) {
       throw new UnauthorizedException('Nieprawidłowa sesja');
@@ -127,8 +125,7 @@ export class ProjectsService {
   }
 
   async join(projectId: number, token: string) {
-    const tokenHash = createHash('sha256').update(token).digest('hex');
-    const session = await this.prisma.session.where({ tokenHash }).first();
+    const session = await this.findByHash(token);
 
     if (!session || !session.discordNick) {
       throw new UnauthorizedException('Nieprawidłowa sesja');
@@ -169,8 +166,7 @@ export class ProjectsService {
   }
 
   async leave(projectId: number, token: string) {
-    const tokenHash = createHash('sha256').update(token).digest('hex');
-    const session = await this.prisma.session.where({ tokenHash }).first();
+    const session = await this.findByHash(token);
 
     if (!session || !session.discordNick) {
       throw new UnauthorizedException('Nieprawidłowa sesja');
