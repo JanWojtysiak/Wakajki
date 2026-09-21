@@ -14,6 +14,7 @@ interface Project {
   participants?: string;
   isJoined: boolean;
   ownerNick: string | null;
+  isOwner: boolean;
 }
 
 interface UserInfo {

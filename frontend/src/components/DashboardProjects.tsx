@@ -9,6 +9,7 @@ interface Project {
   participants?: string;
   isJoined: boolean;
   ownerNick: string | null;
+  isOwner: boolean;
 }
 
 interface DashboardProjectsProps {
@@ -26,7 +27,11 @@ export default function DashboardProjects({
   onEdit,
   onDelete,
 }: DashboardProjectsProps) {
-  const [previewProject, setPreviewProject] = useState<Project | null>(null);
+  const [previewProjectId, setPreviewProjectId] = useState<number | null>(null);
+  const previewProject =
+    previewProjectId === null
+      ? null
+      : projects.find((project) => project.id === previewProjectId) || null;
 
   return (
     <>
@@ -55,7 +60,7 @@ export default function DashboardProjects({
               </span>
               <button
                 type="button"
-                onClick={() => setPreviewProject(project)}
+                onClick={() => setPreviewProjectId(project.id)}
                 className="right-4 bottom-4 h-12 w-12 rounded-2xl bg-discord/20 border border-discord/40 text-discord hover:bg-discord hover:text-white transition-colors flex items-center justify-center shadow-lg"
                 aria-label={`Podgląd projektu ${project.name}`}
               >
@@ -80,7 +85,7 @@ export default function DashboardProjects({
               </div>
               <button
                 type="button"
-                onClick={() => setPreviewProject(null)}
+                onClick={() => setPreviewProjectId(null)}
                 className="rounded-full px-3 py-1 text-xl text-muted-action hover:text-white hover:bg-white/10 transition-colors"
                 aria-label="Zamknij podgląd projektu"
               >
@@ -130,6 +135,7 @@ export default function DashboardProjects({
                   ? 'Opuść'
                   : 'Dołącz'}
               </button>
+              {previewProject.isOwner ? (
               <button
                 type="button"
                 onClick={() => onEdit(previewProject)}
@@ -137,6 +143,8 @@ export default function DashboardProjects({
               >
                 Edytuj
               </button>
+              ) : null}
+              {previewProject.isOwner ? (
               <button
                 type="button"
                 onClick={() => onDelete(previewProject.id)}
@@ -144,6 +152,7 @@ export default function DashboardProjects({
               >
                 Usuń
               </button>
+              ) : null}
             </div>
           </div>
         </div>

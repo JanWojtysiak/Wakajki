@@ -34,15 +34,19 @@ export class ProjectsService {
     }
 
     const session = await this.findByHash(token);
+    if (!session || !session.discordNick) {
+      throw new UnauthorizedException('Nieprawidłowa sesja');
+    }
+
+
     return projects.map((project) => {
       const participants: string[] = JSON.parse(project.participants || '[]');
 
       return {
         ...project,
         ownerNick: sessionToNick.get(project.sessionId) || null,
-        isJoined: session?.discordNick
-          ? participants.includes(session.discordNick)
-          : false,
+        isOwner: project.sessionId === session.id,
+        isJoined: participants.includes(session.discordNick),
       };
     });
   }
