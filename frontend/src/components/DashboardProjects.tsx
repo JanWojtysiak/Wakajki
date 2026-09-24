@@ -50,7 +50,7 @@ export default function DashboardProjects({
               </p>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
+            <div className="mt-6 pt-4 border-t border-gray-100 flex flex-col lg:flex-row justify-between items-center gap-4">
               <span className="text-sm font-medium text-gray-500">
                 Osoby:{' '}
                 <span className="text-blue-600 font-bold">
@@ -73,7 +73,7 @@ export default function DashboardProjects({
 
       {previewProject && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-[40vw] max-h-[90vh] overflow-y-auto rounded-3xl border-4 border-panel-border bg-panel p-8 shadow-2xl">
+          <div className="w-full max-w-lg lg:max-w-[40vw] max-h-[90vh] overflow-y-auto rounded-3xl border-4 border-panel-border bg-panel p-5 md:p-8 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-widest text-muted-action">

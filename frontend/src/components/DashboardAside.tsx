@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FiX } from 'react-icons/fi';
 
 interface UserInfo {
   nick: string;
@@ -9,26 +10,48 @@ interface UserInfo {
 
 interface DashboardAsideProps {
   users: UserInfo[];
+  isMobileOpen?: boolean;
+  onClose?: () => void;
 }
 
-export default function DashboardAside({ users }: DashboardAsideProps) {
+export default function DashboardAside({
+  users,
+  isMobileOpen = false,
+  onClose,
+}: DashboardAsideProps) {
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [selectedUserIndex, setSelectedUserIndex] = useState<number | null>(
     null,
   );
 
+  const isExpanded = isSidebarHovered || isMobileOpen;
+
   return (
     <aside
+      id="dashboard-users-drawer"
       onMouseEnter={() => setIsSidebarHovered(true)}
       onMouseLeave={() => setIsSidebarHovered(false)}
-      className={`bg-slate-900 text-white transition-all duration-300 ease-in-out absolute left-0 top-0 h-full z-40 flex flex-col shadow-2xl ${
-        isSidebarHovered ? 'w-72' : 'w-20'
-      }`}
+      className={`bg-slate-900 text-white transition-all duration-300 ease-in-out fixed md:absolute left-0 top-0 h-full z-40 flex flex-col shadow-2xl w-[80vw] max-w-sm md:max-w-none ${
+        isSidebarHovered ? 'md:w-72' : 'md:w-20'
+      } ${
+        isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+      } md:translate-x-0`}
     >
       <div className="p-4 h-full overflow-y-auto no-scrollbar">
+        <div className="mb-4 flex justify-end md:hidden">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-slate-700 p-2 text-slate-200 transition-colors hover:bg-slate-800 hover:text-white"
+            aria-label="Zamknij listę użytkowników"
+          >
+            <FiX size={22} aria-hidden="true" />
+          </button>
+        </div>
+
         <h2
           className={`font-bold mb-6 border-b border-slate-700 pb-2 text-slate-100 whitespace-nowrap transition-all duration-300 ${
-            isSidebarHovered
+            isExpanded
               ? 'text-xl opacity-100'
               : 'text-[0px] opacity-0 border-transparent m-0 p-0'
           }`}
@@ -47,7 +70,7 @@ export default function DashboardAside({ users }: DashboardAsideProps) {
             >
               <div
                 className={`flex items-center p-2 ${
-                  isSidebarHovered ? 'justify-start' : 'justify-center'
+                  isExpanded ? 'justify-start' : 'justify-center'
                 }`}
               >
                 <div className="w-10 h-10 shrink-0 bg-discord text-white rounded-full flex items-center justify-center font-bold shadow-sm overflow-hidden border border-slate-700">
@@ -64,7 +87,7 @@ export default function DashboardAside({ users }: DashboardAsideProps) {
 
                 <span
                   className={`font-medium text-slate-300 whitespace-nowrap transition-all duration-300 ${
-                    isSidebarHovered
+                    isExpanded
                       ? 'ml-3 opacity-100 w-auto'
                       : 'ml-0 opacity-0 w-0'
                   }`}
@@ -78,7 +101,7 @@ export default function DashboardAside({ users }: DashboardAsideProps) {
                   selectedUserIndex === index
                     ? 'max-h-96 opacity-100'
                     : 'max-h-0 opacity-0'
-                } ${isSidebarHovered ? 'block' : 'hidden'}`}
+                } ${isExpanded ? 'block' : 'hidden'}`}
               >
                 <div className="p-4 pt-0 text-sm">
                   <div className="mb-3">

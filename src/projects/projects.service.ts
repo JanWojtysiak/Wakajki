@@ -38,6 +38,7 @@ export class ProjectsService {
       throw new UnauthorizedException('Nieprawidłowa sesja');
     }
 
+    const discordNick = session.discordNick;
 
     return projects.map((project) => {
       const participants: string[] = JSON.parse(project.participants || '[]');
@@ -46,7 +47,7 @@ export class ProjectsService {
         ...project,
         ownerNick: sessionToNick.get(project.sessionId) || null,
         isOwner: project.sessionId === session.id,
-        isJoined: participants.includes(session.discordNick),
+        isJoined: participants.includes(discordNick),
       };
     });
   }

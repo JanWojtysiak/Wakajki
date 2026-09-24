@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import type * as React from 'react';
 import { CiSun } from 'react-icons/ci';
+import { FiMenu } from 'react-icons/fi';
 import DashboardAside from '@/components/DashboardAside';
 import DashboardProjects from '@/components/DashboardProjects';
 import Welcome from '@/components/Welcome';
@@ -58,6 +60,7 @@ export default function Dashboard() {
   const [peopleNeeded, setPeopleNeeded] = useState(2);
   const [joinedProjects, setJoinedProjects] = useState<number[]>([]);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [isMobileAsideOpen, setIsMobileAsideOpen] = useState(false);
 
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'));
@@ -207,22 +210,43 @@ export default function Dashboard() {
     <div className="flex h-screen bg-app-bg overflow-hidden relative">
       <div className="w-20 shrink-0 h-full hidden md:block"></div>
 
-      <DashboardAside users={users} />
+      {isMobileAsideOpen ? (
+        <div
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden"
+          aria-hidden="true"
+        />
+      ) : null}
+
+      <DashboardAside
+        users={users}
+        isMobileOpen={isMobileAsideOpen}
+        onClose={() => setIsMobileAsideOpen(false)}
+      />
 
       <div className="flex flex-1 flex-col h-screen min-w-0">
         <header className="h-16 shrink-0 flex justify-between items-center px-8 border-b border-panel-border">
           <div className="flex gap-2 items-center">
             <WeatherIcon></WeatherIcon>
-            <div className="text-xl font-bold text-white font-inter">
+            <button
+              type="button"
+              className="md:hidden rounded-lg border border-panel-border p-2 text-white transition-colors hover:text-muted-action"
+              aria-label="Otwórz listę użytkowników"
+              aria-controls="dashboard-users-drawer"
+              aria-expanded={isMobileAsideOpen}
+              onClick={() => setIsMobileAsideOpen(true)}
+            >
+              <FiMenu size={20} aria-hidden="true" />
+            </button>
+            <div className="hidden lg:block text-xl font-bold text-white font-inter">
               Wakajki
             </div>
           </div>
-          <div className="flex gap-7 items-center">
+          <div className="flex gap-2 md:gap-7 items-center">
             <button
               onClick={openCreateModal}
-              className="bg-primary text-white px-5 py-2 rounded-md font-medium shadow-sm cursor-pointer  transition-colors hover:text-black hover:bg-white"
+              className="md:bg-primary text-white px-3 py-1 md:px-5 md:py-2 rounded-md border border-panel-border md:border-0 font-medium shadow-sm md:cursor-pointer  transition-colors md:hover:text-black md:hover:bg-white"
             >
-              + Nowy projekt
+              +<span className="hidden md:inline"> Nowy projekt</span>
             </button>
             <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
             <Notifications></Notifications>
