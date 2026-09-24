@@ -44,8 +44,8 @@ export default function Notifications({
 }: NotificationsProps) {
   return (
     <Popover>
-      <PopoverTrigger className="relative inline-flex items-center justify-center rounded-full p-2 hover:bg-panel">
-        <Bell className="h-5 w-5 text-white hover:text-black transition-colors" />
+      <PopoverTrigger className="relative inline-flex items-center justify-center rounded-full p-2 hover:bg-panel light:hover:bg-slate-100">
+        <Bell className="h-5 w-5 text-white light:text-black hover:text-black transition-colors" />
         {items.length > 0 && (
           <Badge
             variant="default"

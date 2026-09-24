@@ -39,13 +39,13 @@ export default function DashboardProjects({
         {projects.map((project) => (
           <div
             key={project.id}
-            className="relative bg-panel p-6 rounded-xl shadow-sm border-4 border-panel-border hover:shadow-md transition-shadow flex flex-col justify-between min-h-56"
+            className="relative bg-panel light:bg-white p-6 rounded-xl shadow-sm border-4 border-panel-border light:border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between min-h-56"
           >
             <div>
-              <h2 className="text-xl font-bold text-white pr-12">
+              <h2 className="text-xl font-bold text-white light:text-slate-900 pr-12">
                 {project.name}
               </h2>
-              <p className="text-gray-300 mt-3 line-clamp-3">
+              <p className="text-gray-300 light:text-slate-600 mt-3 line-clamp-3">
                 {project.description || 'Brak opisu.'}
               </p>
             </div>
@@ -73,13 +73,13 @@ export default function DashboardProjects({
 
       {previewProject && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg lg:max-w-[40vw] max-h-[90vh] overflow-y-auto rounded-3xl border-4 border-panel-border bg-panel p-5 md:p-8 shadow-2xl">
+          <div className="w-full max-w-lg lg:max-w-[40vw] max-h-[90vh] overflow-y-auto rounded-3xl border-4 border-panel-border light:border-slate-200 bg-panel light:bg-white p-5 md:p-8 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-widest text-muted-action">
                   Podgląd projektu
                 </p>
-                <h2 className="mt-2 text-3xl font-bold text-white">
+                <h2 className="mt-2 text-3xl font-bold text-white light:text-slate-900">
                   {previewProject.name}
                 </h2>
               </div>
@@ -94,27 +94,27 @@ export default function DashboardProjects({
             </div>
 
             <div className="mt-6 space-y-5">
-              <div className="rounded-2xl bg-black/20 border border-white/10 p-5 min-h-[130px]">
-                <p className="text-sm font-semibold text-gray-400">Opis</p>
-                <p className="mt-2 max-h-60 overflow-y-auto pr-2 text-gray-200 leading-relaxed break-words">
+              <div className="rounded-2xl bg-black/20 light:bg-slate-50 border border-white/10 light:border-slate-200 p-5 min-h-[130px]">
+                <p className="text-sm font-semibold text-gray-400 light:text-slate-500">Opis</p>
+                <p className="mt-2 max-h-60 overflow-y-auto pr-2 text-gray-200 light:text-slate-700 leading-relaxed break-words">
                   {previewProject.description || 'Brak opisu.'}
                 </p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl bg-black/20 border border-white/10 p-5">
-                  <p className="text-sm font-semibold text-gray-400">
+                <div className="rounded-2xl bg-black/20 light:bg-slate-50 border border-white/10 light:border-slate-200 p-5">
+                  <p className="text-sm font-semibold text-gray-400 light:text-slate-500">
                     Właściciel
                   </p>
-                  <p className="mt-2 text-lg font-bold text-white">
+                  <p className="mt-2 text-lg font-bold text-white light:text-slate-900">
                     {previewProject.ownerNick || 'Nieznany'}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-black/20 border border-white/10 p-5">
-                  <p className="text-sm font-semibold text-gray-400">
+                <div className="rounded-2xl bg-black/20 light:bg-slate-50 border border-white/10 light:border-slate-200 p-5">
+                  <p className="text-sm font-semibold text-gray-400 light:text-slate-500">
                     Uczestnicy
                   </p>
-                  <p className="mt-2 text-lg font-bold text-white">
+                  <p className="mt-2 text-lg font-bold text-white light:text-slate-900">
                     {previewProject.peopleIn} / {previewProject.peopleNeeded}
                   </p>
                 </div>

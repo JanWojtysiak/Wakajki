@@ -34,7 +34,7 @@ interface ThemeToggleProps {
 function WeatherIcon() {
   return (
     <div>
-      <CiSun size={32} color="white" />
+      <CiSun size={32} className="text-white light:text-amber-500 light:drop-shadow-sm" />
     </div>
   );
 }
@@ -207,7 +207,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-app-bg overflow-hidden relative">
+    <div
+      className={`flex h-screen bg-app-bg text-white light:bg-slate-50 light:text-slate-900 overflow-hidden relative ${
+        theme === 'light' ? 'light' : ''
+      }`}
+    >
       <div className="w-20 shrink-0 h-full hidden md:block"></div>
 
       {isMobileAsideOpen ? (
@@ -224,12 +228,12 @@ export default function Dashboard() {
       />
 
       <div className="flex flex-1 flex-col h-screen min-w-0">
-        <header className="h-16 shrink-0 flex justify-between items-center px-8 border-b border-panel-border">
+        <header className="h-16 shrink-0 flex justify-between items-center px-8 border-b border-panel-border light:border-slate-200">
           <div className="flex gap-2 items-center">
             <WeatherIcon></WeatherIcon>
             <button
               type="button"
-              className="md:hidden rounded-lg border border-panel-border p-2 text-white transition-colors hover:text-muted-action"
+              className="md:hidden rounded-lg border border-panel-border p-2 text-white light:border-slate-300 light:text-slate-900 transition-colors hover:text-muted-action"
               aria-label="Otwórz listę użytkowników"
               aria-controls="dashboard-users-drawer"
               aria-expanded={isMobileAsideOpen}
@@ -237,14 +241,14 @@ export default function Dashboard() {
             >
               <FiMenu size={20} aria-hidden="true" />
             </button>
-            <div className="hidden lg:block text-xl font-bold text-white font-inter">
+            <div className="hidden lg:block text-xl font-bold text-white light:text-slate-900 font-inter">
               Wakajki
             </div>
           </div>
           <div className="flex gap-2 md:gap-7 items-center">
             <button
               onClick={openCreateModal}
-              className="md:bg-primary text-white px-3 py-1 md:px-5 md:py-2 rounded-md border border-panel-border md:border-0 font-medium shadow-sm md:cursor-pointer  transition-colors md:hover:text-black md:hover:bg-white"
+              className="md:bg-primary text-white light:text-slate-900 md:light:text-white px-3 py-1 md:px-5 md:py-2 rounded-md border border-panel-border light:border-slate-300 md:border-0 font-medium shadow-sm md:cursor-pointer  transition-colors md:hover:text-black md:hover:bg-white"
             >
               +<span className="hidden md:inline"> Nowy projekt</span>
             </button>
@@ -255,7 +259,7 @@ export default function Dashboard() {
 
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-6xl mx-auto">
-            <h1 className="text-3xl font-bold text-white font-inter mb-8">
+            <h1 className="text-3xl font-bold text-white light:text-slate-900 font-inter mb-8">
               Tablica Projektów
             </h1>
             <DashboardProjects
@@ -267,15 +271,15 @@ export default function Dashboard() {
             />
             {isModalOpen && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                <div className="bg-panel rounded-xl p-6 max-w-md w-full shadow-lg">
-                  <h2 className="text-xl font-bold mb-4 text-white">
+                <div className="bg-panel light:bg-white rounded-xl p-6 max-w-md w-full shadow-lg">
+                  <h2 className="text-xl font-bold mb-4 text-white light:text-slate-900">
                     {editingProjectId
                       ? 'Edytuj projekt'
                       : 'Utwórz nowy projekt'}
                   </h2>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-white mb-1">
+                      <label className="block text-sm font-medium text-white light:text-slate-900 mb-1">
                         Nazwa projektu
                       </label>
                       <input
@@ -284,23 +288,23 @@ export default function Dashboard() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Np. Aplikacja do planowania wakacji"
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white light:bg-white light:text-slate-900"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-white mb-1">
+                      <label className="block text-sm font-medium text-white light:text-slate-900 mb-1">
                         Opis
                       </label>
                       <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="Opisz krótko, czego dotyczy projekt"
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white light:bg-white light:text-slate-900"
                         rows={3}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-white mb-1">
+                      <label className="block text-sm font-medium text-white light:text-slate-900 mb-1">
                         Potrzebne osoby
                       </label>
                       <input
@@ -311,14 +315,14 @@ export default function Dashboard() {
                           setPeopleNeeded(Number(e.target.value))
                         }
                         placeholder="Np. 4"
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white light:bg-white light:text-slate-900"
                       />
                     </div>
                     <div className="flex justify-end space-x-3 mt-6">
                       <button
                         type="button"
                         onClick={() => setIsModalOpen(false)}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-white  font-medium cursor-pointer  transition-colors hover:text-black hover:bg-white"
+                        className="px-4 py-2 border border-gray-300 rounded-md text-white light:text-slate-900  font-medium cursor-pointer  transition-colors hover:text-black hover:bg-white"
                       >
                         Anuluj
                       </button>
