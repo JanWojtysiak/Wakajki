@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant light (&:is(.light, .light *));
+
+@theme {
+  --font-inter: Inter, system-ui, sans-serif;
+  --color-app-bg: #161616;
+  --color-panel: #18181b;
+  --color-panel-border: #27272a;
+  --color-discord: #5865f2;
+  --color-primary: #1069bb;
+  --color-muted-action: #949ba4;
+  --color-warning: #f0b232;
+  --color-success: #23a55a;
+  --color-danger: #f23f43;
+}
+
+@layer base {
+  body {
+    @apply bg-app-bg text-white;
+  }
+  html {
+    @apply font-inter;
+  }
+}

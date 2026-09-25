@@ -6,7 +6,6 @@ import { AppService } from './app.service';
 describe('AppController', () => {
   let appController: AppController;
   const enter = jest.fn();
-  const updateDiscordNick = jest.fn();
   const cookie = jest.fn();
 
   beforeEach(async () => {
@@ -17,7 +16,7 @@ describe('AppController', () => {
       providers: [
         {
           provide: AppService,
-          useValue: { enter, updateDiscordNick },
+          useValue: { enter },
         },
       ],
     }).compile();
@@ -66,26 +65,6 @@ describe('AppController', () => {
 
     expect(enter).toHaveBeenCalledWith('session-token');
     expect(cookie).not.toHaveBeenCalled();
-    expect(result).toEqual({
-      page: null,
-      discordNick: 'discord-user',
-    });
-  });
-
-  it('updates the Discord nick using the cookie session', async () => {
-    updateDiscordNick.mockResolvedValue({
-      page: null,
-      discordNick: 'discord-user',
-    });
-
-    const result = await appController.updateDiscordNick('a'.repeat(43), {
-      discordNick: 'discord-user',
-    });
-
-    expect(updateDiscordNick).toHaveBeenCalledWith(
-      'a'.repeat(43),
-      'discord-user',
-    );
     expect(result).toEqual({
       page: null,
       discordNick: 'discord-user',

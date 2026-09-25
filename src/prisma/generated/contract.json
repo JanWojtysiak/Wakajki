@@ -8,6 +8,10 @@
       "model": "Project",
       "namespace": "public"
     },
+    "projectRequest": {
+      "model": "ProjectRequest",
+      "namespace": "public"
+    },
     "session": {
       "model": "Session",
       "namespace": "public"
@@ -40,7 +44,21 @@
                   "kind": "scalar"
                 }
               },
+              "isOpen": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "participants": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
@@ -70,6 +88,21 @@
               }
             },
             "relations": {
+              "requests": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "projectId"
+                  ]
+                },
+                "to": {
+                  "model": "ProjectRequest",
+                  "namespace": "public"
+                }
+              },
               "session": {
                 "cardinality": "N:1",
                 "on": {
@@ -97,8 +130,14 @@
                 "id": {
                   "column": "id"
                 },
+                "isOpen": {
+                  "column": "isOpen"
+                },
                 "name": {
                   "column": "name"
+                },
+                "participants": {
+                  "column": "participants"
                 },
                 "peopleIn": {
                   "column": "peopleIn"
@@ -114,12 +153,138 @@
               "table": "project"
             }
           },
+          "ProjectRequest": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "discordNick": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "message": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "projectId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "sessionId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "project": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "projectId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Project",
+                  "namespace": "public"
+                }
+              },
+              "session": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "sessionId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Session",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "discordNick": {
+                  "column": "discordNick"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "message": {
+                  "column": "message"
+                },
+                "projectId": {
+                  "column": "projectId"
+                },
+                "sessionId": {
+                  "column": "sessionId"
+                },
+                "status": {
+                  "column": "status"
+                }
+              },
+              "namespaceId": "public",
+              "table": "projectRequest"
+            }
+          },
           "Session": {
             "fields": {
               "createdAt": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "discordAvatar": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "discordId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -153,6 +318,21 @@
               }
             },
             "relations": {
+              "projectRequests": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "sessionId"
+                  ]
+                },
+                "to": {
+                  "model": "ProjectRequest",
+                  "namespace": "public"
+                }
+              },
               "projects": {
                 "cardinality": "1:N",
                 "on": {
@@ -173,6 +353,12 @@
               "fields": {
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "discordAvatar": {
+                  "column": "discordAvatar"
+                },
+                "discordId": {
+                  "column": "discordId"
                 },
                 "discordNick": {
                   "column": "discordNick"
@@ -225,8 +411,26 @@
                   "nativeType": "int4",
                   "nullable": false
                 },
+                "isOpen": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "name": {
                   "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "participants": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "[]"
+                  },
                   "nativeType": "text",
                   "nullable": false
                 },
@@ -282,6 +486,124 @@
               },
               "uniques": []
             },
+            "projectRequest": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "discordNick": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "message": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "projectId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "sessionId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "pending"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "projectId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "projectRequest"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "project"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "sessionId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "projectRequest"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "session"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "projectId"
+                  ],
+                  "name": "projectRequest_projectId_idx_a96e4d92",
+                  "prefix": "projectRequest_projectId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "sessionId"
+                  ],
+                  "name": "projectRequest_sessionId_idx_29f415d4",
+                  "prefix": "projectRequest_sessionId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "projectId",
+                    "sessionId"
+                  ]
+                }
+              ]
+            },
             "session": {
               "columns": {
                 "createdAt": {
@@ -292,6 +614,16 @@
                   },
                   "nativeType": "timestamptz",
                   "nullable": false
+                },
+                "discordAvatar": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "discordId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "discordNick": {
                   "codecId": "pg/text@1",
@@ -339,7 +671,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "7fdbf69dd285b3560f3d54b93ee1503fb9ef9a94a53ff380f5ee455459a55f81"
+    "storageHash": "c66628978d34b06b2db7e785405ca1c8c59eb99319e27c8fbc46d5d47d6c7d23"
   },
   "capabilities": {
     "postgres": {

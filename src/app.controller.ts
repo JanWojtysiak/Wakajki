@@ -1,18 +1,17 @@
 import {
-  Body,
   Controller,
   createParamDecorator,
   ExecutionContext,
   Get,
   Inject,
-  Patch,
   Res,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AppService } from './app.service';
 
 const SESSION_COOKIE = 'wakajki_session';
-const SessionToken = createParamDecorator(
+export { SESSION_COOKIE };
+export const SessionToken = createParamDecorator(
   (_data: unknown, context: ExecutionContext): string | undefined =>
     context.switchToHttp().getRequest<Request>().cookies?.[SESSION_COOKIE],
 );
@@ -42,13 +41,5 @@ export class AppController {
       page: result.page,
       discordNick: result.discordNick,
     };
-  }
-
-  @Patch()
-  updateDiscordNick(
-    @SessionToken() token: string | undefined,
-    @Body() body: Record<string, unknown> | undefined,
-  ) {
-    return this.appService.updateDiscordNick(token, body?.discordNick);
   }
 }

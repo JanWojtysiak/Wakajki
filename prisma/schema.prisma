@@ -1,11 +1,14 @@
 model Session {
-  id          Int      @id @default(autoincrement())
-  tokenHash   String   @unique
-  discordNick String?
+  id            Int       @id @default(autoincrement())
+  tokenHash     String    @unique
+  discordId     String?   
+  discordNick   String?
+  discordAvatar String?
   expiresAt   DateTime
   createdAt   DateTime @default(now())
 
-  projects Project[]
+  projects        Project[]
+  projectRequests ProjectRequest[]
 }
 
 model Project {
@@ -15,7 +18,25 @@ model Project {
   peopleNeeded Int
   peopleIn     Int
   createdAt    DateTime @default(now())
+  participants String @default("[]")
+  isOpen       Boolean  @default(true)
+  requests     ProjectRequest[]
 
   sessionId Int
   session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model ProjectRequest {
+  id          Int      @id @default(autoincrement())
+  projectId   Int
+  sessionId   Int
+  discordNick String
+  message     String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, sessionId])
 }

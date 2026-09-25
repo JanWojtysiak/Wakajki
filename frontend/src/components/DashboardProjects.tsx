@@ -1,0 +1,209 @@
+import { useState } from 'react';
+
+interface Project {
+  id: number;
+  name: string;
+  description: string | null;
+  peopleNeeded: number;
+  peopleIn: number;
+  participants?: string;
+  isJoined: boolean;
+  ownerNick: string | null;
+  isOwner: boolean;
+  isOpen: boolean;
+  hasRequested: boolean;
+}
+
+interface DashboardProjectsProps {
+  projects: Project[];
+  joinedProjects: number[];
+  onToggleJoin: (project: Project) => void;
+  onRequest: (project: Project, message: string) => void;
+  onEdit: (project: Project) => void;
+  onDelete: (id: number) => void;
+}
+
+export default function DashboardProjects({
+  projects,
+  joinedProjects,
+  onToggleJoin,
+  onRequest,
+  onEdit,
+  onDelete,
+}: DashboardProjectsProps) {
+  const [previewProjectId, setPreviewProjectId] = useState<number | null>(null);
+  const [requestMessage, setRequestMessage] = useState('');
+  const previewProject =
+    previewProjectId === null
+      ? null
+      : projects.find((project) => project.id === previewProjectId) || null;
+
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {projects.map((project) => (
+          <div
+            key={project.id}
+            className="relative bg-panel light:bg-white p-6 rounded-xl shadow-sm border-4 border-panel-border light:border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between min-h-56"
+          >
+            <div>
+              <h2 className="text-xl font-bold text-white light:text-slate-900 pr-12">
+                {project.name}
+              </h2>
+              <p className="text-gray-300 light:text-slate-600 mt-3 line-clamp-3">
+                {project.description || 'Brak opisu.'}
+              </p>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-gray-100 flex flex-col lg:flex-row justify-between items-center gap-4">
+              <span className="text-sm font-medium text-gray-500">
+                {project.isOpen ? 'Otwarty' : 'Na prośbę'} · Osoby:{' '}
+                <span className="text-blue-600 font-bold">
+                  {project.peopleIn}
+                </span>{' '}
+                / {project.peopleNeeded}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPreviewProjectId(project.id)}
+                className="right-4 bottom-4 h-12 w-12 rounded-2xl bg-discord/20 border border-discord/40 text-discord hover:bg-discord hover:text-white transition-colors flex items-center justify-center shadow-lg"
+                aria-label={`Podgląd projektu ${project.name}`}
+              >
+                <span className="text-2xl leading-none">→</span>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {previewProject && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg lg:max-w-[40vw] max-h-[90vh] overflow-y-auto rounded-3xl border-4 border-panel-border light:border-slate-200 bg-panel light:bg-white p-5 md:p-8 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm uppercase tracking-widest text-muted-action">
+                  Podgląd projektu
+                </p>
+                <h2 className="mt-2 text-3xl font-bold text-white light:text-slate-900">
+                  {previewProject.name}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewProjectId(null);
+                  setRequestMessage('');
+                }}
+                className="rounded-full px-3 py-1 text-xl text-muted-action hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Zamknij podgląd projektu"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-5">
+              <div className="rounded-2xl bg-black/20 light:bg-slate-50 border border-white/10 light:border-slate-200 p-5 min-h-[130px]">
+                <p className="text-sm font-semibold text-gray-400 light:text-slate-500">Opis</p>
+                <p className="mt-2 max-h-60 overflow-y-auto pr-2 text-gray-200 light:text-slate-700 leading-relaxed break-words">
+                  {previewProject.description || 'Brak opisu.'}
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl bg-black/20 light:bg-slate-50 border border-white/10 light:border-slate-200 p-5">
+                  <p className="text-sm font-semibold text-gray-400 light:text-slate-500">
+                    Właściciel
+                  </p>
+                  <p className="mt-2 text-lg font-bold text-white light:text-slate-900">
+                    {previewProject.ownerNick || 'Nieznany'}
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-black/20 light:bg-slate-50 border border-white/10 light:border-slate-200 p-5">
+                  <p className="text-sm font-semibold text-gray-400 light:text-slate-500">
+                    Uczestnicy
+                  </p>
+                  <p className="mt-2 text-lg font-bold text-white light:text-slate-900">
+                    {previewProject.peopleIn} / {previewProject.peopleNeeded}
+                  </p>
+                </div>
+              </div>
+
+              {!previewProject.isOpen &&
+                !previewProject.isOwner &&
+                !joinedProjects.includes(previewProject.id) && (
+                  <div className="rounded-2xl bg-black/20 light:bg-slate-50 border border-white/10 light:border-slate-200 p-5">
+                    <p className="text-sm font-semibold text-gray-400 light:text-slate-500">
+                      Prośba o dołączenie
+                    </p>
+                    {previewProject.hasRequested ? (
+                      <p className="mt-2 text-gray-200 light:text-slate-700">
+                        Prośba została wysłana. Czekaj na odpowiedź właściciela.
+                      </p>
+                    ) : (
+                      <textarea
+                        value={requestMessage}
+                        onChange={(e) => setRequestMessage(e.target.value)}
+                        placeholder="Napisz, dlaczego chcesz dołączyć do projektu"
+                        className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white light:bg-white light:text-slate-900"
+                        rows={3}
+                      />
+                    )}
+                  </div>
+                )}
+            </div>
+
+            <div className="mt-8 flex flex-wrap justify-end gap-3">
+              {!previewProject.isOpen &&
+              !previewProject.isOwner &&
+              !joinedProjects.includes(previewProject.id) ? (
+                <button
+                  type="button"
+                  disabled={previewProject.hasRequested}
+                  onClick={() => {
+                    onRequest(previewProject, requestMessage);
+                    setRequestMessage('');
+                  }}
+                  className="rounded-xl px-5 py-3 text-sm font-bold transition-colors bg-success/20 text-success hover:bg-success hover:text-white disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  {previewProject.hasRequested ? 'Wysłano prośbę' : 'Wyślij prośbę'}
+                </button>
+              ) : (
+              <button
+                type="button"
+                onClick={() => onToggleJoin(previewProject)}
+                className={`rounded-xl px-5 py-3 text-sm font-bold transition-colors ${
+                  joinedProjects.includes(previewProject.id)
+                    ? 'bg-warning/20 text-warning hover:bg-warning hover:text-white'
+                    : 'bg-success/20 text-success hover:bg-success hover:text-white'
+                }`}
+              >
+                {joinedProjects.includes(previewProject.id)
+                  ? 'Opuść'
+                  : 'Dołącz'}
+              </button>
+              )}
+              {previewProject.isOwner ? (
+              <button
+                type="button"
+                onClick={() => onEdit(previewProject)}
+                className="rounded-xl bg-discord/20 px-5 py-3 text-sm font-bold text-discord hover:bg-discord hover:text-white transition-colors"
+              >
+                Edytuj
+              </button>
+              ) : null}
+              {previewProject.isOwner ? (
+              <button
+                type="button"
+                onClick={() => onDelete(previewProject.id)}
+                className="rounded-xl bg-danger/20 px-5 py-3 text-sm font-bold text-danger hover:bg-danger hover:text-white transition-colors"
+              >
+                Usuń
+              </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

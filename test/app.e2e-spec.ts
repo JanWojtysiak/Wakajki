@@ -7,20 +7,22 @@ import { AppModule } from './../src/app.module';
 import { PrismaService } from './../src/prisma/prisma.service';
 
 describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication<App> | undefined;
   const findActiveSession = jest.fn();
   const createSession = jest.fn();
-  const updateActiveSession = jest.fn();
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    process.env.DISCORD_CLIENT_ID = 'test-client-id';
+    process.env.DISCORD_CLIENT_SECRET = 'test-client-secret';
+    process.env.DISCORD_CALLBACK_URL = 'http://localhost/auth/discord/callback';
     createSession.mockResolvedValue(undefined);
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(PrismaService)
-      .useValue({ findActiveSession, createSession, updateActiveSession })
+      .useValue({ findActiveSession, createSession })
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -29,7 +31,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/ (GET) creates a session and returns Welcome.jsx', () => {
-    return request(app.getHttpServer())
+    return request(app!.getHttpServer())
       .get('/')
       .expect(200)
       .expect('set-cookie', /wakajki_session=/)
@@ -39,21 +41,7 @@ describe('AppController (e2e)', () => {
       });
   });
 
-  it('/ (PATCH) completes the cookie session profile', () => {
-    updateActiveSession.mockResolvedValue(true);
-
-    return request(app.getHttpServer())
-      .patch('/')
-      .set('Cookie', `wakajki_session=${'a'.repeat(43)}`)
-      .send({ discordNick: 'discord-user' })
-      .expect(200)
-      .expect({
-        page: null,
-        discordNick: 'discord-user',
-      });
-  });
-
   afterEach(async () => {
-    await app.close();
+    await app?.close();
   });
 });
