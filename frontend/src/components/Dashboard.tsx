@@ -17,6 +17,8 @@ interface Project {
   isJoined: boolean;
   ownerNick: string | null;
   isOwner: boolean;
+  isOpen: boolean;
+  hasRequested: boolean;
 }
 
 interface UserInfo {
@@ -24,6 +26,14 @@ interface UserInfo {
   discordAvatar?: string | null;
   projects: { id: number; name: string }[];
   joinedProjects?: { id: number; name: string }[];
+}
+
+interface ProjectRequest {
+  id: number;
+  discordNick: string;
+  message: string | null;
+  projectId: number;
+  projectName: string;
 }
 
 interface ThemeToggleProps {
@@ -58,6 +68,8 @@ export default function Dashboard() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [peopleNeeded, setPeopleNeeded] = useState(2);
+  const [isOpen, setIsOpen] = useState(true);
+  const [requests, setRequests] = useState<ProjectRequest[]>([]);
   const [joinedProjects, setJoinedProjects] = useState<number[]>([]);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [isMobileAsideOpen, setIsMobileAsideOpen] = useState(false);
@@ -95,6 +107,16 @@ export default function Dashboard() {
         const userData: UserInfo[] = await resUsers.json();
         setUsers(userData);
       }
+
+      const resRequests = await fetch(
+        'http://localhost:3000/projects/requests',
+        { credentials: 'include' },
+      );
+
+      if (resRequests.ok) {
+        const requestData: ProjectRequest[] = await resRequests.json();
+        setRequests(requestData);
+      }
     } catch (err) {
       console.error('Błąd połączenia z backendem', err);
     } finally {
@@ -111,6 +133,7 @@ export default function Dashboard() {
     setName('');
     setDescription('');
     setPeopleNeeded(2);
+    setIsOpen(true);
     setIsModalOpen(true);
   };
 
@@ -135,7 +158,11 @@ export default function Dashboard() {
         method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name, description, peopleNeeded }),
+        body: JSON.stringify(
+          editingProjectId
+            ? { name, description, peopleNeeded }
+            : { name, description, peopleNeeded, isOpen },
+        ),
       });
 
       if (!res.ok) throw new Error('Nie udało się zapisać projektu');
@@ -186,6 +213,50 @@ export default function Dashboard() {
         setJoinedProjects(joinedProjects.filter((id) => id !== project.id));
       } else {
         setJoinedProjects([...joinedProjects, project.id]);
+      }
+
+      checkAuthAndFetchData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const handleRequest = async (project: Project, message: string) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/projects/${project.id}/request`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ message }),
+        },
+      );
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || 'Wystąpił błąd');
+      }
+
+      checkAuthAndFetchData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const handleAnswerRequest = async (id: number, action: 'accept' | 'reject') => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/projects/requests/${id}/${action}`,
+        {
+          method: 'POST',
+          credentials: 'include',
+        },
+      );
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || 'Wystąpił błąd');
       }
 
       checkAuthAndFetchData();
@@ -253,7 +324,11 @@ export default function Dashboard() {
               +<span className="hidden md:inline"> Nowy projekt</span>
             </button>
             <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
-            <Notifications></Notifications>
+            <Notifications
+              requests={requests}
+              onAccept={(id) => handleAnswerRequest(id, 'accept')}
+              onReject={(id) => handleAnswerRequest(id, 'reject')}
+            />
           </div>
         </header>
 
@@ -266,6 +341,7 @@ export default function Dashboard() {
               projects={projects}
               joinedProjects={joinedProjects}
               onToggleJoin={handleToggleJoin}
+              onRequest={handleRequest}
               onEdit={openEditModal}
               onDelete={handleDelete}
             />
@@ -318,6 +394,31 @@ export default function Dashboard() {
                         className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white light:bg-white light:text-slate-900"
                       />
                     </div>
+                    {!editingProjectId && (
+                      <div>
+                        <label className="block text-sm font-medium text-white light:text-slate-900 mb-1">
+                          Dołączanie
+                        </label>
+                        <div className="flex gap-4 text-white light:text-slate-900">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              checked={isOpen}
+                              onChange={() => setIsOpen(true)}
+                            />
+                            Otwarty
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              checked={!isOpen}
+                              onChange={() => setIsOpen(false)}
+                            />
+                            Na prośbę
+                          </label>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex justify-end space-x-3 mt-6">
                       <button
                         type="button"

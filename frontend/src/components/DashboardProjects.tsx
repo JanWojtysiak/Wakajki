@@ -10,12 +10,15 @@ interface Project {
   isJoined: boolean;
   ownerNick: string | null;
   isOwner: boolean;
+  isOpen: boolean;
+  hasRequested: boolean;
 }
 
 interface DashboardProjectsProps {
   projects: Project[];
   joinedProjects: number[];
   onToggleJoin: (project: Project) => void;
+  onRequest: (project: Project, message: string) => void;
   onEdit: (project: Project) => void;
   onDelete: (id: number) => void;
 }
@@ -24,10 +27,12 @@ export default function DashboardProjects({
   projects,
   joinedProjects,
   onToggleJoin,
+  onRequest,
   onEdit,
   onDelete,
 }: DashboardProjectsProps) {
   const [previewProjectId, setPreviewProjectId] = useState<number | null>(null);
+  const [requestMessage, setRequestMessage] = useState('');
   const previewProject =
     previewProjectId === null
       ? null
@@ -52,7 +57,7 @@ export default function DashboardProjects({
 
             <div className="mt-6 pt-4 border-t border-gray-100 flex flex-col lg:flex-row justify-between items-center gap-4">
               <span className="text-sm font-medium text-gray-500">
-                Osoby:{' '}
+                {project.isOpen ? 'Otwarty' : 'Na prośbę'} · Osoby:{' '}
                 <span className="text-blue-600 font-bold">
                   {project.peopleIn}
                 </span>{' '}
@@ -85,7 +90,10 @@ export default function DashboardProjects({
               </div>
               <button
                 type="button"
-                onClick={() => setPreviewProjectId(null)}
+                onClick={() => {
+                  setPreviewProjectId(null);
+                  setRequestMessage('');
+                }}
                 className="rounded-full px-3 py-1 text-xl text-muted-action hover:text-white hover:bg-white/10 transition-colors"
                 aria-label="Zamknij podgląd projektu"
               >
@@ -119,9 +127,47 @@ export default function DashboardProjects({
                   </p>
                 </div>
               </div>
+
+              {!previewProject.isOpen &&
+                !previewProject.isOwner &&
+                !joinedProjects.includes(previewProject.id) && (
+                  <div className="rounded-2xl bg-black/20 light:bg-slate-50 border border-white/10 light:border-slate-200 p-5">
+                    <p className="text-sm font-semibold text-gray-400 light:text-slate-500">
+                      Prośba o dołączenie
+                    </p>
+                    {previewProject.hasRequested ? (
+                      <p className="mt-2 text-gray-200 light:text-slate-700">
+                        Prośba została wysłana. Czekaj na odpowiedź właściciela.
+                      </p>
+                    ) : (
+                      <textarea
+                        value={requestMessage}
+                        onChange={(e) => setRequestMessage(e.target.value)}
+                        placeholder="Napisz, dlaczego chcesz dołączyć do projektu"
+                        className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white light:bg-white light:text-slate-900"
+                        rows={3}
+                      />
+                    )}
+                  </div>
+                )}
             </div>
 
             <div className="mt-8 flex flex-wrap justify-end gap-3">
+              {!previewProject.isOpen &&
+              !previewProject.isOwner &&
+              !joinedProjects.includes(previewProject.id) ? (
+                <button
+                  type="button"
+                  disabled={previewProject.hasRequested}
+                  onClick={() => {
+                    onRequest(previewProject, requestMessage);
+                    setRequestMessage('');
+                  }}
+                  className="rounded-xl px-5 py-3 text-sm font-bold transition-colors bg-success/20 text-success hover:bg-success hover:text-white disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  {previewProject.hasRequested ? 'Wysłano prośbę' : 'Wyślij prośbę'}
+                </button>
+              ) : (
               <button
                 type="button"
                 onClick={() => onToggleJoin(previewProject)}
@@ -135,6 +181,7 @@ export default function DashboardProjects({
                   ? 'Opuść'
                   : 'Dołącz'}
               </button>
+              )}
               {previewProject.isOwner ? (
               <button
                 type="button"

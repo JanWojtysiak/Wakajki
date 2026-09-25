@@ -7,76 +7,75 @@ import {
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-// Type definition for reusability
-interface NotificationItem {
-  id: string;
-  title: string;
-  description: string;
-  time: string;
+interface ProjectRequest {
+  id: number;
+  discordNick: string;
+  message: string | null;
+  projectId: number;
+  projectName: string;
 }
 
 interface NotificationsProps {
-  items?: NotificationItem[];
+  requests: ProjectRequest[];
+  onAccept: (id: number) => void;
+  onReject: (id: number) => void;
 }
-const defaultNotifications: NotificationItem[] = [
-  {
-    id: '1',
-    title: 'Welcome 🎉',
-    description: 'Thanks for checking out the notifications component!',
-    time: 'just now',
-  },
-  {
-    id: '2',
-    title: 'System Update',
-    description: 'We’ve rolled out a new feature for you.',
-    time: '1h ago',
-  },
-  {
-    id: '3',
-    title: 'Reminder',
-    description: 'Don’t forget to finish your profile setup.',
-    time: '3h ago',
-  },
-];
 
 export default function Notifications({
-  items = defaultNotifications,
+  requests,
+  onAccept,
+  onReject,
 }: NotificationsProps) {
   return (
     <Popover>
       <PopoverTrigger className="relative inline-flex items-center justify-center rounded-full p-2 hover:bg-panel light:hover:bg-slate-100">
         <Bell className="h-5 w-5 text-white light:text-black hover:text-black transition-colors" />
-        {items.length > 0 && (
+        {requests.length > 0 && (
           <Badge
             variant="default"
             className="absolute -top-1 -right-1 text-xs px-1.5 py-0"
           >
-            {items.length}
+            {requests.length}
           </Badge>
         )}
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="center" side="bottom">
         <Card className="max-h-80 overflow-y-auto rounded-lg border-none shadow-none bg-black text-white">
-          {items.length === 0 ? (
+          {requests.length === 0 ? (
             <div className="p-4 text-sm text-muted-action text-center">
-              No notifications
+              Brak powiadomień
             </div>
           ) : (
             <ul className="divide-y divide-panel-border">
-              {items.map((item) => (
+              {requests.map((request) => (
                 <li
-                  key={item.id}
+                  key={request.id}
                   className="p-4 hover:bg-panel-border/50 transition"
                 >
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-medium text-sm">{item.title}</span>
-                    <span className="text-xs text-muted-action">
-                      {item.time}
-                    </span>
+                  <div className="mb-1 text-sm">
+                    <span className="font-medium">{request.discordNick}</span>{' '}
+                    chce dołączyć do{' '}
+                    <span className="font-medium">{request.projectName}</span>
                   </div>
-                  <p className="text-xs text-muted-action leading-relaxed">
-                    {item.description}
+                  <p className="text-xs text-muted-action leading-relaxed break-words">
+                    {request.message || 'Brak wiadomości.'}
                   </p>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onAccept(request.id)}
+                      className="rounded-lg px-3 py-1 text-xs font-bold bg-success/20 text-success hover:bg-success hover:text-white transition-colors"
+                    >
+                      Akceptuj
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onReject(request.id)}
+                      className="rounded-lg px-3 py-1 text-xs font-bold bg-danger/20 text-danger hover:bg-danger hover:text-white transition-colors"
+                    >
+                      Odrzuć
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -86,12 +85,3 @@ export default function Notifications({
     </Popover>
   );
 }
-
-// Example usage
-// <Notifications
-//   items={[
-//     { id: "1", title: "New Message", description: "You have a new message from John.", time: "2h ago" },
-//     { id: "2", title: "System Alert", description: "Server downtime scheduled at midnight.", time: "5h ago" },
-//     { id: "3", title: "Meeting Reminder", description: "Project sync meeting at 3 PM.", time: "1d ago" },
-//   ]}
-// />

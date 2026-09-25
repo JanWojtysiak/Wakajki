@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsOptional, IsInt, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+  Min,
+  IsBoolean,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateProjectDto {
@@ -25,4 +32,12 @@ export class CreateProjectDto {
   @IsInt({ message: 'Liczba osób musi być liczbą całkowitą' })
   @Min(1, { message: 'Projekt wymaga co najmniej 1 osoby' })
   peopleNeeded: number;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Czy każdy może dołączyć (true), czy trzeba wysłać prośbę (false)',
+  })
+  @IsBoolean({ message: 'isOpen musi być wartością true/false' })
+  @IsOptional()
+  isOpen?: boolean;
 }
