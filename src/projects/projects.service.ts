@@ -153,7 +153,9 @@ export class ProjectsService {
       throw new NotFoundException('Projekt nie istnieje');
     }
 
-    if (!project.isOpen) {
+    const isOwner = project.sessionId === session.id;
+
+    if (!project.isOpen && !isOwner) {
       throw new BadRequestException(
         'Do tego projektu trzeba wysłać prośbę o dołączenie',
       );
@@ -198,6 +200,14 @@ export class ProjectsService {
     const project = await this.prisma.project.where({ id: projectId }).first();
     if (!project) {
       throw new NotFoundException('Projekt nie istnieje');
+    }
+
+    const isOwner = project.sessionId === session.id;
+
+    if (isOwner) {
+      throw new BadRequestException(
+        'Jesteś właścicielem tego projektu. Użyj opcji bezpośredniego dołączenia zamiast wysyłać prośbę.',
+      );
     }
 
     if (project.isOpen) {
@@ -337,6 +347,15 @@ export class ProjectsService {
       peopleIn: newPeopleIn,
       participants: JSON.stringify(participants),
     });
+
+    const oldRequest = await this.prisma.projectRequest
+      .where({ projectId })
+      .where({ sessionId: session.id })
+      .first();
+
+    if (oldRequest) {
+      await this.prisma.projectRequest.where({ id: oldRequest.id }).delete();
+    }
 
     return { message: 'Opuszczono projekt' };
   }

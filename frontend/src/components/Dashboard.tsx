@@ -44,7 +44,10 @@ interface ThemeToggleProps {
 function WeatherIcon() {
   return (
     <div>
-      <CiSun size={32} className="text-white light:text-amber-500 light:drop-shadow-sm" />
+      <CiSun
+        size={32}
+        className="text-white light:text-amber-500 light:drop-shadow-sm"
+      />
     </div>
   );
 }
@@ -126,6 +129,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     checkAuthAndFetchData();
+
+    const intervalId = setInterval(() => {
+      checkAuthAndFetchData();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const openCreateModal = () => {
@@ -244,7 +253,10 @@ export default function Dashboard() {
     }
   };
 
-  const handleAnswerRequest = async (id: number, action: 'accept' | 'reject') => {
+  const handleAnswerRequest = async (
+    id: number,
+    action: 'accept' | 'reject',
+  ) => {
     try {
       const res = await fetch(
         `http://localhost:3000/projects/requests/${id}/${action}`,

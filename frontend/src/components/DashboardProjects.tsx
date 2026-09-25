@@ -103,7 +103,9 @@ export default function DashboardProjects({
 
             <div className="mt-6 space-y-5">
               <div className="rounded-2xl bg-black/20 light:bg-slate-50 border border-white/10 light:border-slate-200 p-5 min-h-[130px]">
-                <p className="text-sm font-semibold text-gray-400 light:text-slate-500">Opis</p>
+                <p className="text-sm font-semibold text-gray-400 light:text-slate-500">
+                  Opis
+                </p>
                 <p className="mt-2 max-h-60 overflow-y-auto pr-2 text-gray-200 light:text-slate-700 leading-relaxed break-words">
                   {previewProject.description || 'Brak opisu.'}
                 </p>
@@ -165,40 +167,42 @@ export default function DashboardProjects({
                   }}
                   className="rounded-xl px-5 py-3 text-sm font-bold transition-colors bg-success/20 text-success hover:bg-success hover:text-white disabled:opacity-50 disabled:pointer-events-none"
                 >
-                  {previewProject.hasRequested ? 'Wysłano prośbę' : 'Wyślij prośbę'}
+                  {previewProject.hasRequested
+                    ? 'Wysłano prośbę'
+                    : 'Wyślij prośbę'}
                 </button>
               ) : (
-              <button
-                type="button"
-                onClick={() => onToggleJoin(previewProject)}
-                className={`rounded-xl px-5 py-3 text-sm font-bold transition-colors ${
-                  joinedProjects.includes(previewProject.id)
-                    ? 'bg-warning/20 text-warning hover:bg-warning hover:text-white'
-                    : 'bg-success/20 text-success hover:bg-success hover:text-white'
-                }`}
-              >
-                {joinedProjects.includes(previewProject.id)
-                  ? 'Opuść'
-                  : 'Dołącz'}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onToggleJoin(previewProject)}
+                  className={`rounded-xl px-5 py-3 text-sm font-bold transition-colors ${
+                    joinedProjects.includes(previewProject.id)
+                      ? 'bg-warning/20 text-warning hover:bg-warning hover:text-white'
+                      : 'bg-success/20 text-success hover:bg-success hover:text-white'
+                  }`}
+                >
+                  {joinedProjects.includes(previewProject.id)
+                    ? 'Opuść'
+                    : 'Dołącz'}
+                </button>
               )}
               {previewProject.isOwner ? (
-              <button
-                type="button"
-                onClick={() => onEdit(previewProject)}
-                className="rounded-xl bg-discord/20 px-5 py-3 text-sm font-bold text-discord hover:bg-discord hover:text-white transition-colors"
-              >
-                Edytuj
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onEdit(previewProject)}
+                  className="rounded-xl bg-discord/20 px-5 py-3 text-sm font-bold text-discord hover:bg-discord hover:text-white transition-colors"
+                >
+                  Edytuj
+                </button>
               ) : null}
               {previewProject.isOwner ? (
-              <button
-                type="button"
-                onClick={() => onDelete(previewProject.id)}
-                className="rounded-xl bg-danger/20 px-5 py-3 text-sm font-bold text-danger hover:bg-danger hover:text-white transition-colors"
-              >
-                Usuń
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onDelete(previewProject.id)}
+                  className="rounded-xl bg-danger/20 px-5 py-3 text-sm font-bold text-danger hover:bg-danger hover:text-white transition-colors"
+                >
+                  Usuń
+                </button>
               ) : null}
             </div>
           </div>
