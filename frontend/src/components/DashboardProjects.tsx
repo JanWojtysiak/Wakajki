@@ -200,7 +200,7 @@ export default function DashboardProjects({
                   ? 'Opuść'
                   : 'Dołącz'}
               </button>
-              ) : null}
+              ) : null{'}'}
               {previewProject.isOwner ? (
                 <button
                   type="button"
