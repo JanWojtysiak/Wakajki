@@ -186,6 +186,21 @@ export default function DashboardProjects({
                     : 'Dołącz'}
                 </button>
               )}
+              ) : !previewProject.isOwner ? (
+              <button
+                type="button"
+                onClick={() => onToggleJoin(previewProject)}
+                className={`rounded-xl px-5 py-3 text-sm font-bold transition-colors ${
+                  joinedProjects.includes(previewProject.id)
+                    ? 'bg-warning/20 text-warning hover:bg-warning hover:text-white'
+                    : 'bg-success/20 text-success hover:bg-success hover:text-white'
+                }`}
+              >
+                {joinedProjects.includes(previewProject.id)
+                  ? 'Opuść'
+                  : 'Dołącz'}
+              </button>
+              ) : null}
               {previewProject.isOwner ? (
                 <button
                   type="button"

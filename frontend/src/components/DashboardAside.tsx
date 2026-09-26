@@ -11,6 +11,8 @@ interface UserInfo {
 interface DashboardAsideProps {
   users: UserInfo[];
   isMobileOpen?: boolean;
+  isSidebarHovered?: boolean;
+  setIsSidebarHovered?: (isHovered: boolean) => void;
   onClose?: () => void;
 }
 
@@ -18,8 +20,9 @@ export default function DashboardAside({
   users,
   isMobileOpen = false,
   onClose,
+  isSidebarHovered = false,
+  setIsSidebarHovered,
 }: DashboardAsideProps) {
-  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [selectedUserIndex, setSelectedUserIndex] = useState<number | null>(
     null,
   );
@@ -29,8 +32,8 @@ export default function DashboardAside({
   return (
     <aside
       id="dashboard-users-drawer"
-      onMouseEnter={() => setIsSidebarHovered(true)}
-      onMouseLeave={() => setIsSidebarHovered(false)}
+      onMouseEnter={() => setIsSidebarHovered?.(true)}
+      onMouseLeave={() => setIsSidebarHovered?.(false)}
       className={`bg-slate-900 text-white transition-all duration-300 ease-in-out fixed md:absolute left-0 top-0 h-full z-40 flex flex-col shadow-2xl w-[80vw] max-w-sm md:max-w-none ${
         isSidebarHovered ? 'md:w-72' : 'md:w-20'
       } ${
