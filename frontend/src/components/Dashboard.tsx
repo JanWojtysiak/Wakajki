@@ -73,6 +73,7 @@ export default function Dashboard() {
   const [joinedProjects, setJoinedProjects] = useState<number[]>([]);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [isMobileAsideOpen, setIsMobileAsideOpen] = useState(false);
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
 
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'));
@@ -296,11 +297,17 @@ export default function Dashboard() {
         users={users}
         isMobileOpen={isMobileAsideOpen}
         onClose={() => setIsMobileAsideOpen(false)}
+        isSidebarHovered={isSidebarHovered}
+        setIsSidebarHovered={setIsSidebarHovered}
       />
 
       <div className="flex flex-1 flex-col h-screen min-w-0">
         <header className="h-16 shrink-0 flex justify-between items-center px-8 border-b border-panel-border light:border-slate-200">
-          <div className="flex gap-2 items-center">
+          <div
+            className={`flex gap-2 items-center md:transition-transform md:duration-300 md:ease-in-out ${
+              isSidebarHovered ? 'md:translate-x-52' : 'md:translate-x-0'
+            }`}
+          >
             <WeatherIcon></WeatherIcon>
             <button
               type="button"

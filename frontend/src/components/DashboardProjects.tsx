@@ -167,7 +167,7 @@ export default function DashboardProjects({
                 >
                   {previewProject.hasRequested ? 'Wysłano prośbę' : 'Wyślij prośbę'}
                 </button>
-              ) : (
+              ) : !previewProject.isOwner ? (
               <button
                 type="button"
                 onClick={() => onToggleJoin(previewProject)}
@@ -181,7 +181,7 @@ export default function DashboardProjects({
                   ? 'Opuść'
                   : 'Dołącz'}
               </button>
-              )}
+              ) : null}
               {previewProject.isOwner ? (
               <button
                 type="button"
