@@ -6,6 +6,7 @@ import DashboardAside from '@/components/DashboardAside';
 import DashboardProjects from '@/components/DashboardProjects';
 import Welcome from '@/components/Welcome';
 import Notifications from '@/components/Notifications';
+import { io } from 'socket.io-client';
 
 interface Project {
   id: number;
@@ -131,11 +132,17 @@ export default function Dashboard() {
   useEffect(() => {
     checkAuthAndFetchData();
 
-    const intervalId = setInterval(() => {
-      checkAuthAndFetchData();
-    }, 5000);
+    const socket = io('http://localhost:3000', {
+      withCredentials: true,
+    });
 
-    return () => clearInterval(intervalId);
+    socket.on('projectsUpdated', () => {
+      checkAuthAndFetchData();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const openCreateModal = () => {
