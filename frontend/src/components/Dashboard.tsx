@@ -19,7 +19,7 @@ interface Project {
   ownerNick: string | null;
   isOwner: boolean;
   isOpen: boolean;
-  hasRequested: boolean;
+  requestStatus: 'pending' | 'accepted' | 'rejected' | null;
 }
 
 interface UserInfo {
@@ -60,6 +60,7 @@ function ThemeToggle({ theme, toggleTheme }: ThemeToggleProps) {
     </button>
   );
 }
+
 export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<UserInfo[]>([]);

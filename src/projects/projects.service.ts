@@ -47,7 +47,11 @@ export class ProjectsService {
     const myRequests = await this.prisma.projectRequest
       .where({ sessionId: session.id })
       .all();
-    const requestedProjectIds = myRequests.map((request) => request.projectId);
+
+    const requestStatusMap = new Map();
+    for (const request of myRequests) {
+      requestStatusMap.set(request.projectId, request.status);
+    }
 
     return projects.map((project) => {
       const participants: string[] = JSON.parse(project.participants || '[]');
@@ -57,7 +61,7 @@ export class ProjectsService {
         ownerNick: sessionToNick.get(project.sessionId) || null,
         isOwner: project.sessionId === session.id,
         isJoined: participants.includes(discordNick),
-        hasRequested: requestedProjectIds.includes(project.id),
+        requestStatus: requestStatusMap.get(project.id) || null,
       };
     });
   }
@@ -235,8 +239,15 @@ export class ProjectsService {
       .where({ projectId })
       .where({ sessionId: session.id })
       .first();
+
     if (existingRequest) {
-      throw new BadRequestException('Już wysłałeś prośbę do tego projektu!');
+      if (existingRequest.status === 'rejected') {
+        await this.prisma.projectRequest
+          .where({ id: existingRequest.id })
+          .delete();
+      } else {
+        throw new BadRequestException('Już wysłałeś prośbę do tego projektu!');
+      }
     }
 
     await this.prisma.projectRequest.create({
@@ -307,7 +318,7 @@ export class ProjectsService {
         .where({ id: requestId })
         .updateAndCount({ status: 'rejected' });
 
-      this.gateway.notifyClients(); // Powiadomienie o odrzuceniu
+      this.gateway.notifyClients();
       return { message: 'Prośba została odrzucona' };
     }
 
@@ -345,6 +356,12 @@ export class ProjectsService {
     const project = await this.prisma.project.where({ id: projectId }).first();
     if (!project) {
       throw new NotFoundException('Projekt nie istnieje');
+    }
+
+    if (project.sessionId === session.id) {
+      throw new BadRequestException(
+        'Właściciel nie może opuścić własnego projektu. Możesz go jedynie usunąć.',
+      );
     }
 
     let participants = JSON.parse(project.participants || '[]');

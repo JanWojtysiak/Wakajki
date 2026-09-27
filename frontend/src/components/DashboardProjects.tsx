@@ -11,7 +11,7 @@ interface Project {
   ownerNick: string | null;
   isOwner: boolean;
   isOpen: boolean;
-  hasRequested: boolean;
+  requestStatus: 'pending' | 'accepted' | 'rejected' | null;
 }
 
 interface DashboardProjectsProps {
@@ -137,18 +137,26 @@ export default function DashboardProjects({
                     <p className="text-sm font-semibold text-gray-400 light:text-slate-500">
                       Prośba o dołączenie
                     </p>
-                    {previewProject.hasRequested ? (
+
+                    {previewProject.requestStatus === 'pending' ? (
                       <p className="mt-2 text-gray-200 light:text-slate-700">
                         Prośba została wysłana. Czekaj na odpowiedź właściciela.
                       </p>
                     ) : (
-                      <textarea
-                        value={requestMessage}
-                        onChange={(e) => setRequestMessage(e.target.value)}
-                        placeholder="Napisz, dlaczego chcesz dołączyć do projektu"
-                        className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white light:bg-white light:text-slate-900"
-                        rows={3}
-                      />
+                      <>
+                        {previewProject.requestStatus === 'rejected' && (
+                          <p className="mt-2 text-danger font-bold mb-2">
+                            Twoja poprzednia prośba została odrzucona.
+                          </p>
+                        )}
+                        <textarea
+                          value={requestMessage}
+                          onChange={(e) => setRequestMessage(e.target.value)}
+                          placeholder="Napisz, dlaczego chcesz dołączyć do projektu"
+                          className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-zinc-500 text-white light:bg-white light:text-slate-900"
+                          rows={3}
+                        />
+                      </>
                     )}
                   </div>
                 )}
@@ -160,65 +168,55 @@ export default function DashboardProjects({
               !joinedProjects.includes(previewProject.id) ? (
                 <button
                   type="button"
-                  disabled={previewProject.hasRequested}
+                  disabled={previewProject.requestStatus === 'pending'}
                   onClick={() => {
                     onRequest(previewProject, requestMessage);
                     setRequestMessage('');
                   }}
                   className="rounded-xl px-5 py-3 text-sm font-bold transition-colors bg-success/20 text-success hover:bg-success hover:text-white disabled:opacity-50 disabled:pointer-events-none"
                 >
-                  {previewProject.hasRequested
+                  {previewProject.requestStatus === 'pending'
                     ? 'Wysłano prośbę'
-                    : 'Wyślij prośbę'}
+                    : previewProject.requestStatus === 'rejected'
+                      ? 'Wyślij ponownie'
+                      : 'Wyślij prośbę'}
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => onToggleJoin(previewProject)}
-                  className={`rounded-xl px-5 py-3 text-sm font-bold transition-colors ${
-                    joinedProjects.includes(previewProject.id)
-                      ? 'bg-warning/20 text-warning hover:bg-warning hover:text-white'
-                      : 'bg-success/20 text-success hover:bg-success hover:text-white'
-                  }`}
-                >
-                  {joinedProjects.includes(previewProject.id)
-                    ? 'Opuść'
-                    : 'Dołącz'}
-                </button>
+                !previewProject.isOwner && (
+                  <button
+                    type="button"
+                    onClick={() => onToggleJoin(previewProject)}
+                    className={`rounded-xl px-5 py-3 text-sm font-bold transition-colors ${
+                      joinedProjects.includes(previewProject.id)
+                        ? 'bg-warning/20 text-warning hover:bg-warning hover:text-white'
+                        : 'bg-success/20 text-success hover:bg-success hover:text-white'
+                    }`}
+                  >
+                    {joinedProjects.includes(previewProject.id)
+                      ? 'Opuść'
+                      : 'Dołącz'}
+                  </button>
+                )
               )}
-              ) : !previewProject.isOwner ? (
-              <button
-                type="button"
-                onClick={() => onToggleJoin(previewProject)}
-                className={`rounded-xl px-5 py-3 text-sm font-bold transition-colors ${
-                  joinedProjects.includes(previewProject.id)
-                    ? 'bg-warning/20 text-warning hover:bg-warning hover:text-white'
-                    : 'bg-success/20 text-success hover:bg-success hover:text-white'
-                }`}
-              >
-                {joinedProjects.includes(previewProject.id)
-                  ? 'Opuść'
-                  : 'Dołącz'}
-              </button>
-              ) : null{'}'}
-              {previewProject.isOwner ? (
-                <button
-                  type="button"
-                  onClick={() => onEdit(previewProject)}
-                  className="rounded-xl bg-discord/20 px-5 py-3 text-sm font-bold text-discord hover:bg-discord hover:text-white transition-colors"
-                >
-                  Edytuj
-                </button>
-              ) : null}
-              {previewProject.isOwner ? (
-                <button
-                  type="button"
-                  onClick={() => onDelete(previewProject.id)}
-                  className="rounded-xl bg-danger/20 px-5 py-3 text-sm font-bold text-danger hover:bg-danger hover:text-white transition-colors"
-                >
-                  Usuń
-                </button>
-              ) : null}
+
+              {previewProject.isOwner && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onEdit(previewProject)}
+                    className="rounded-xl bg-discord/20 px-5 py-3 text-sm font-bold text-discord hover:bg-discord hover:text-white transition-colors"
+                  >
+                    Edytuj
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(previewProject.id)}
+                    className="rounded-xl bg-danger/20 px-5 py-3 text-sm font-bold text-danger hover:bg-danger hover:text-white transition-colors"
+                  >
+                    Usuń
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
