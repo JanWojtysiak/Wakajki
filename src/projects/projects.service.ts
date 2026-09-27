@@ -6,10 +6,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { createHash } from 'node:crypto';
+import { ProjectsGateway } from './projects.gateway';
 
 @Injectable()
 export class ProjectsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly gateway: ProjectsGateway,
+  ) {}
 
   async findByHash(token: string) {
     const tokenHash = createHash('sha256').update(token).digest('hex');
@@ -77,7 +81,7 @@ export class ProjectsService {
 
     const initialParticipants = JSON.stringify([session.discordNick]);
 
-    return this.prisma.project.create({
+    const newProject = await this.prisma.project.create({
       name: data.name,
       description: data.description || null,
       peopleNeeded: data.peopleNeeded,
@@ -86,6 +90,9 @@ export class ProjectsService {
       participants: initialParticipants,
       isOpen: data.isOpen,
     });
+
+    this.gateway.notifyClients();
+    return newProject;
   }
 
   async update(
@@ -117,6 +124,7 @@ export class ProjectsService {
       );
     }
 
+    this.gateway.notifyClients();
     return { message: 'Projekt został zaktualizowany' };
   }
 
@@ -138,6 +146,7 @@ export class ProjectsService {
       );
     }
 
+    this.gateway.notifyClients();
     return { message: 'Projekt został pomyślnie usunięty' };
   }
 
@@ -187,6 +196,7 @@ export class ProjectsService {
       );
     }
 
+    this.gateway.notifyClients();
     return { message: 'Dołączono do projektu!' };
   }
 
@@ -236,6 +246,7 @@ export class ProjectsService {
       message: message || null,
     });
 
+    this.gateway.notifyClients();
     return { message: 'Prośba o dołączenie została wysłana!' };
   }
 
@@ -267,7 +278,6 @@ export class ProjectsService {
         });
       }
     }
-
     return result;
   }
 
@@ -297,6 +307,7 @@ export class ProjectsService {
         .where({ id: requestId })
         .updateAndCount({ status: 'rejected' });
 
+      this.gateway.notifyClients(); // Powiadomienie o odrzuceniu
       return { message: 'Prośba została odrzucona' };
     }
 
@@ -320,6 +331,7 @@ export class ProjectsService {
       .where({ id: requestId })
       .updateAndCount({ status: 'accepted' });
 
+    this.gateway.notifyClients();
     return { message: 'Prośba została zaakceptowana' };
   }
 
@@ -357,6 +369,7 @@ export class ProjectsService {
       await this.prisma.projectRequest.where({ id: oldRequest.id }).delete();
     }
 
+    this.gateway.notifyClients();
     return { message: 'Opuszczono projekt' };
   }
 
