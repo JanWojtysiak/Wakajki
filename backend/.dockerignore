@@ -3,3 +3,7 @@ npm-debug.log
 dist
 .env
 .git
+.cursor
+.claude
+.agents
+.devin

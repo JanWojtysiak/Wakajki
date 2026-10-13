@@ -32,6 +32,11 @@ docker compose up --build
 - API: [http://localhost:3000](http://localhost:3000)
 - Dokumentacja API: [http://localhost:3000/api](http://localhost:3000/api)
 
+## Struktura
+
+- `backend/` — API (NestJS). Kod jest w `backend/src`, schemat bazy w `backend/prisma`, migracje w `backend/migrations`.
+- `frontend/` — aplikacja React (Vite).
+
 ## Stack
 
 NestJS, React (Vite), Prisma, PostgreSQL i logowanie przez Discord.

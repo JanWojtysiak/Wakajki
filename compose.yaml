@@ -1,6 +1,6 @@
 services:
   backend:
-    build: .
+    build: ./backend
     env_file:
       - .env
     ports:
@@ -8,7 +8,7 @@ services:
     environment:
       DATABASE_URL: postgresql://wakajki:wakajki@postgres:5432/wakajki
     volumes:
-      - .:/app
+      - ./backend:/app
       - /app/node_modules
     command: sh -c "npm run prisma:emit && npm run db:update -- -y && npm run start:dev"
     depends_on:
