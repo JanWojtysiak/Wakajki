@@ -3,10 +3,6 @@ interface WelcomeProps {
 }
 
 export default function Welcome(_props: WelcomeProps) {
-  const handleDiscordLogin = () => {
-    window.location.href = 'http://localhost:3000/auth/discord';
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-md text-center">
@@ -23,12 +19,12 @@ export default function Welcome(_props: WelcomeProps) {
           i zarządzać projektami na hackathonie.
         </p>
 
-        <button
-          onClick={handleDiscordLogin}
+        <a
+          href="http://localhost:3000/auth/discord"
           className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#5865F2] hover:bg-[#4752C4] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5865F2] transition-colors"
         >
           Zaloguj przez Discord
-        </button>
+        </a>
       </div>
     </div>
   );

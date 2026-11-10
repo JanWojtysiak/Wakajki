@@ -7,11 +7,19 @@ function App() {
   const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3000', { credentials: 'include' })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => setIsLoggedIn(Boolean(data?.discordNick)))
-      .catch(() => setIsLoggedIn(false))
-      .finally(() => setCheckingSession(false));
+    const checkSession = async () => {
+      try {
+        const res = await fetch('http://localhost:3000', { credentials: 'include' });
+        const data = res.ok ? await res.json() : null;
+        setIsLoggedIn(Boolean(data?.discordNick));
+      } catch {
+        setIsLoggedIn(false);
+      } finally {
+        setCheckingSession(false);
+      }
+    };
+
+    checkSession();
   }, []);
 
   if (checkingSession) {
